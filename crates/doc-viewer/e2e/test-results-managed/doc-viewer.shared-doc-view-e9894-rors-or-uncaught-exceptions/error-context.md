@@ -1,0 +1,772 @@
+# Instructions
+
+- Following Playwright test failed.
+- Explain why, be concise, respect Playwright best practices.
+- Provide a snippet of code with the fix, if possible.
+
+# Test info
+
+- Name: doc-viewer.shared.spec.ts >> doc-viewer — common suite >> renders without console errors or uncaught exceptions
+- Location: ..\..\..\..\viewer-api\frontend\dioxus\e2e\shared\suites\common-viewer-suite.ts:7:9
+
+# Error details
+
+```
+Error: doc-viewer produced JS errors after loading
+
+expect(received).toEqual(expected) // deep equality
+
+- Expected  -  1
++ Received  + 14
+
+- Array []
++ Array [
++   "console.error: Failed to load resource: the server responded with a status of 404 (Not Found)",
++   "console.error: Failed to load resource: the server responded with a status of 404 (Not Found)",
++   "console.error: Failed to load resource: the server responded with a status of 404 (Not Found)",
++   "console.error: Failed to load resource: the server responded with a status of 404 (Not Found)",
++   "console.error: Failed to load resource: the server responded with a status of 404 (Not Found)",
++   "console.error: Failed to load resource: the server responded with a status of 404 (Not Found)",
++   "console.error: Failed to load resource: the server responded with a status of 404 (Not Found)",
++   "console.error: Failed to load resource: the server responded with a status of 404 (Not Found)",
++   "console.error: Failed to load resource: the server responded with a status of 404 (Not Found)",
++   "console.error: Failed to load resource: the server responded with a status of 404 (Not Found)",
++   "console.error: Failed to load resource: the server responded with a status of 404 (Not Found)",
++   "console.error: Failed to load resource: the server responded with a status of 404 (Not Found)",
++ ]
+```
+
+# Page snapshot
+
+```yaml
+- generic [ref=e5]:
+  - banner [ref=e6]:
+    - generic [ref=e7]:
+      - button "Toggle sidebar" [ref=e8] [cursor=pointer]:
+        - img [ref=e9]
+      - generic [ref=e10]: Docs
+      - generic [ref=e11]: Doc Viewer
+      - generic [ref=e12]: 41 packages
+    - generic [ref=e14]:
+      - button "Refresh" [ref=e15] [cursor=pointer]:
+        - img [ref=e16]
+      - button "Theme settings" [ref=e20] [cursor=pointer]:
+        - img [ref=e21]
+  - generic [ref=e23]:
+    - generic [ref=e24]:
+      - generic [ref=e25]:
+        - heading "Generated Docs" [level=2] [ref=e26]
+        - generic [ref=e27]: "65"
+        - button "Collapse sidebar" [ref=e28] [cursor=pointer]:
+          - img [ref=e30]
+      - generic [ref=e32]:
+        - generic [ref=e33]: Workspace packages and targets discovered from doc-http.
+        - tree [ref=e34]:
+          - generic [ref=e35]:
+            - treeitem "audit-api 1" [expanded] [ref=e36] [cursor=pointer]:
+              - img [ref=e38]
+              - img [ref=e40]
+              - generic [ref=e43]: audit-api
+              - generic [ref=e44]: "1"
+            - treeitem "audit_api lib" [ref=e47] [cursor=pointer]:
+              - img [ref=e48]
+              - generic [ref=e51]: audit_api
+              - generic [ref=e52]: lib
+          - generic [ref=e53]:
+            - treeitem "audit-cli 2" [expanded] [ref=e54] [cursor=pointer]:
+              - img [ref=e56]
+              - img [ref=e58]
+              - generic [ref=e61]: audit-cli
+              - generic [ref=e62]: "2"
+            - generic [ref=e63]:
+              - treeitem "audit bin" [ref=e65] [cursor=pointer]:
+                - img [ref=e66]
+                - generic [ref=e69]: audit
+                - generic [ref=e70]: bin
+              - treeitem "audit_cli lib" [ref=e72] [cursor=pointer]:
+                - img [ref=e73]
+                - generic [ref=e76]: audit_cli
+                - generic [ref=e77]: lib
+          - generic [ref=e78]:
+            - treeitem "audit-mcp 2" [expanded] [ref=e79] [cursor=pointer]:
+              - img [ref=e81]
+              - img [ref=e83]
+              - generic [ref=e86]: audit-mcp
+              - generic [ref=e87]: "2"
+            - generic [ref=e88]:
+              - treeitem "audit-mcp bin" [ref=e90] [cursor=pointer]:
+                - img [ref=e91]
+                - generic [ref=e94]: audit-mcp
+                - generic [ref=e95]: bin
+              - treeitem "audit_mcp lib" [ref=e97] [cursor=pointer]:
+                - img [ref=e98]
+                - generic [ref=e101]: audit_mcp
+                - generic [ref=e102]: lib
+          - generic [ref=e103]:
+            - treeitem "doc-api 1" [expanded] [ref=e104] [cursor=pointer]:
+              - img [ref=e106]
+              - img [ref=e108]
+              - generic [ref=e111]: doc-api
+              - generic [ref=e112]: "1"
+            - treeitem "doc_api lib" [selected] [ref=e115] [cursor=pointer]:
+              - img [ref=e116]
+              - generic [ref=e119]: doc_api
+              - generic [ref=e120]: lib
+          - generic [ref=e121]:
+            - treeitem "doc-http 2" [expanded] [ref=e122] [cursor=pointer]:
+              - img [ref=e124]
+              - img [ref=e126]
+              - generic [ref=e129]: doc-http
+              - generic [ref=e130]: "2"
+            - generic [ref=e131]:
+              - treeitem "doc-http bin" [ref=e133] [cursor=pointer]:
+                - img [ref=e134]
+                - generic [ref=e137]: doc-http
+                - generic [ref=e138]: bin
+              - treeitem "doc_http lib" [ref=e140] [cursor=pointer]:
+                - img [ref=e141]
+                - generic [ref=e144]: doc_http
+                - generic [ref=e145]: lib
+          - generic [ref=e146]:
+            - treeitem "doc-viewer 1" [expanded] [ref=e147] [cursor=pointer]:
+              - img [ref=e149]
+              - img [ref=e151]
+              - generic [ref=e154]: doc-viewer
+              - generic [ref=e155]: "1"
+            - treeitem "doc-viewer bin" [ref=e158] [cursor=pointer]:
+              - img [ref=e159]
+              - generic [ref=e162]: doc-viewer
+              - generic [ref=e163]: bin
+          - generic [ref=e164]:
+            - treeitem "feedback-api 1" [expanded] [ref=e165] [cursor=pointer]:
+              - img [ref=e167]
+              - img [ref=e169]
+              - generic [ref=e172]: feedback-api
+              - generic [ref=e173]: "1"
+            - treeitem "feedback_api lib" [ref=e176] [cursor=pointer]:
+              - img [ref=e177]
+              - generic [ref=e180]: feedback_api
+              - generic [ref=e181]: lib
+          - generic [ref=e182]:
+            - treeitem "feedback-cli 1" [expanded] [ref=e183] [cursor=pointer]:
+              - img [ref=e185]
+              - img [ref=e187]
+              - generic [ref=e190]: feedback-cli
+              - generic [ref=e191]: "1"
+            - treeitem "feedback bin" [ref=e194] [cursor=pointer]:
+              - img [ref=e195]
+              - generic [ref=e198]: feedback
+              - generic [ref=e199]: bin
+          - generic [ref=e200]:
+            - treeitem "feedback-http 2" [expanded] [ref=e201] [cursor=pointer]:
+              - img [ref=e203]
+              - img [ref=e205]
+              - generic [ref=e208]: feedback-http
+              - generic [ref=e209]: "2"
+            - generic [ref=e210]:
+              - treeitem "feedback-http bin" [ref=e212] [cursor=pointer]:
+                - img [ref=e213]
+                - generic [ref=e216]: feedback-http
+                - generic [ref=e217]: bin
+              - treeitem "feedback_http lib" [ref=e219] [cursor=pointer]:
+                - img [ref=e220]
+                - generic [ref=e223]: feedback_http
+                - generic [ref=e224]: lib
+          - generic [ref=e225]:
+            - treeitem "feedback-mcp 2" [expanded] [ref=e226] [cursor=pointer]:
+              - img [ref=e228]
+              - img [ref=e230]
+              - generic [ref=e233]: feedback-mcp
+              - generic [ref=e234]: "2"
+            - generic [ref=e235]:
+              - treeitem "feedback-mcp bin" [ref=e237] [cursor=pointer]:
+                - img [ref=e238]
+                - generic [ref=e241]: feedback-mcp
+                - generic [ref=e242]: bin
+              - treeitem "feedback_mcp lib" [ref=e244] [cursor=pointer]:
+                - img [ref=e245]
+                - generic [ref=e248]: feedback_mcp
+                - generic [ref=e249]: lib
+          - generic [ref=e250]:
+            - treeitem "install-ctl 1" [expanded] [ref=e251] [cursor=pointer]:
+              - img [ref=e253]
+              - img [ref=e255]
+              - generic [ref=e258]: install-ctl
+              - generic [ref=e259]: "1"
+            - treeitem "install-ctl bin" [ref=e262] [cursor=pointer]:
+              - img [ref=e263]
+              - generic [ref=e266]: install-ctl
+              - generic [ref=e267]: bin
+          - generic [ref=e268]:
+            - treeitem "log-api 1" [expanded] [ref=e269] [cursor=pointer]:
+              - img [ref=e271]
+              - img [ref=e273]
+              - generic [ref=e276]: log-api
+              - generic [ref=e277]: "1"
+            - treeitem "log_api lib" [ref=e280] [cursor=pointer]:
+              - img [ref=e281]
+              - generic [ref=e284]: log_api
+              - generic [ref=e285]: lib
+          - generic [ref=e286]:
+            - treeitem "log-viewer 1" [expanded] [ref=e287] [cursor=pointer]:
+              - img [ref=e289]
+              - img [ref=e291]
+              - generic [ref=e294]: log-viewer
+              - generic [ref=e295]: "1"
+            - treeitem "log-viewer bin" [ref=e298] [cursor=pointer]:
+              - img [ref=e299]
+              - generic [ref=e302]: log-viewer
+              - generic [ref=e303]: bin
+          - generic [ref=e304]:
+            - treeitem "log-viewer-dioxus 1" [expanded] [ref=e305] [cursor=pointer]:
+              - img [ref=e307]
+              - img [ref=e309]
+              - generic [ref=e312]: log-viewer-dioxus
+              - generic [ref=e313]: "1"
+            - treeitem "log-viewer-dioxus bin" [ref=e316] [cursor=pointer]:
+              - img [ref=e317]
+              - generic [ref=e320]: log-viewer-dioxus
+              - generic [ref=e321]: bin
+          - generic [ref=e322]:
+            - treeitem "mcp-toolmon 4" [expanded] [ref=e323] [cursor=pointer]:
+              - img [ref=e325]
+              - img [ref=e327]
+              - generic [ref=e330]: mcp-toolmon
+              - generic [ref=e331]: "4"
+            - generic [ref=e332]:
+              - treeitem "fake-mcp-v1 bin" [ref=e334] [cursor=pointer]:
+                - img [ref=e335]
+                - generic [ref=e338]: fake-mcp-v1
+                - generic [ref=e339]: bin
+              - treeitem "fake-mcp-v2 bin" [ref=e341] [cursor=pointer]:
+                - img [ref=e342]
+                - generic [ref=e345]: fake-mcp-v2
+                - generic [ref=e346]: bin
+              - treeitem "mcp-toolmon bin" [ref=e348] [cursor=pointer]:
+                - img [ref=e349]
+                - generic [ref=e352]: mcp-toolmon
+                - generic [ref=e353]: bin
+              - treeitem "mcp_toolmon lib" [ref=e355] [cursor=pointer]:
+                - img [ref=e356]
+                - generic [ref=e359]: mcp_toolmon
+                - generic [ref=e360]: lib
+          - generic [ref=e361]:
+            - treeitem "peek-api 1" [expanded] [ref=e362] [cursor=pointer]:
+              - img [ref=e364]
+              - img [ref=e366]
+              - generic [ref=e369]: peek-api
+              - generic [ref=e370]: "1"
+            - treeitem "peek_api lib" [ref=e373] [cursor=pointer]:
+              - img [ref=e374]
+              - generic [ref=e377]: peek_api
+              - generic [ref=e378]: lib
+          - generic [ref=e379]:
+            - treeitem "peek-cli 1" [expanded] [ref=e380] [cursor=pointer]:
+              - img [ref=e382]
+              - img [ref=e384]
+              - generic [ref=e387]: peek-cli
+              - generic [ref=e388]: "1"
+            - treeitem "peek bin" [ref=e391] [cursor=pointer]:
+              - img [ref=e392]
+              - generic [ref=e395]: peek
+              - generic [ref=e396]: bin
+          - generic [ref=e397]:
+            - treeitem "peek-mcp 2" [expanded] [ref=e398] [cursor=pointer]:
+              - img [ref=e400]
+              - img [ref=e402]
+              - generic [ref=e405]: peek-mcp
+              - generic [ref=e406]: "2"
+            - generic [ref=e407]:
+              - treeitem "peek-mcp bin" [ref=e409] [cursor=pointer]:
+                - img [ref=e410]
+                - generic [ref=e413]: peek-mcp
+                - generic [ref=e414]: bin
+              - treeitem "peek_mcp lib" [ref=e416] [cursor=pointer]:
+                - img [ref=e417]
+                - generic [ref=e420]: peek_mcp
+                - generic [ref=e421]: lib
+          - generic [ref=e422]:
+            - treeitem "rule 3" [expanded] [ref=e423] [cursor=pointer]:
+              - img [ref=e425]
+              - img [ref=e427]
+              - generic [ref=e430]: rule
+              - generic [ref=e431]: "3"
+            - generic [ref=e432]:
+              - treeitem "rule bin" [ref=e434] [cursor=pointer]:
+                - img [ref=e435]
+                - generic [ref=e438]: rule
+                - generic [ref=e439]: bin
+              - treeitem "rule lib" [ref=e441] [cursor=pointer]:
+                - img [ref=e442]
+                - generic [ref=e445]: rule
+                - generic [ref=e446]: lib
+              - treeitem "rule-mcp bin" [ref=e448] [cursor=pointer]:
+                - img [ref=e449]
+                - generic [ref=e452]: rule-mcp
+                - generic [ref=e453]: bin
+          - generic [ref=e454]:
+            - treeitem "rule-api 1" [expanded] [ref=e455] [cursor=pointer]:
+              - img [ref=e457]
+              - img [ref=e459]
+              - generic [ref=e462]: rule-api
+              - generic [ref=e463]: "1"
+            - treeitem "rule_api lib" [ref=e466] [cursor=pointer]:
+              - img [ref=e467]
+              - generic [ref=e470]: rule_api
+              - generic [ref=e471]: lib
+          - generic [ref=e472]:
+            - treeitem "session 4" [expanded] [ref=e473] [cursor=pointer]:
+              - img [ref=e475]
+              - img [ref=e477]
+              - generic [ref=e480]: session
+              - generic [ref=e481]: "4"
+            - generic [ref=e482]:
+              - treeitem "session bin" [ref=e484] [cursor=pointer]:
+                - img [ref=e485]
+                - generic [ref=e488]: session
+                - generic [ref=e489]: bin
+              - treeitem "session lib" [ref=e491] [cursor=pointer]:
+                - img [ref=e492]
+                - generic [ref=e495]: session
+                - generic [ref=e496]: lib
+              - treeitem "session-capture-hook bin" [ref=e498] [cursor=pointer]:
+                - img [ref=e499]
+                - generic [ref=e502]: session-capture-hook
+                - generic [ref=e503]: bin
+              - treeitem "session-mcp bin" [ref=e505] [cursor=pointer]:
+                - img [ref=e506]
+                - generic [ref=e509]: session-mcp
+                - generic [ref=e510]: bin
+          - generic [ref=e511]:
+            - treeitem "session-api 1" [expanded] [ref=e512] [cursor=pointer]:
+              - img [ref=e514]
+              - img [ref=e516]
+              - generic [ref=e519]: session-api
+              - generic [ref=e520]: "1"
+            - treeitem "session_api lib" [ref=e523] [cursor=pointer]:
+              - img [ref=e524]
+              - generic [ref=e527]: session_api
+              - generic [ref=e528]: lib
+          - generic [ref=e529]:
+            - treeitem "session-record-merge 1" [expanded] [ref=e530] [cursor=pointer]:
+              - img [ref=e532]
+              - img [ref=e534]
+              - generic [ref=e537]: session-record-merge
+              - generic [ref=e538]: "1"
+            - treeitem "session-record-merge bin" [ref=e541] [cursor=pointer]:
+              - img [ref=e542]
+              - generic [ref=e545]: session-record-merge
+              - generic [ref=e546]: bin
+          - generic [ref=e547]:
+            - treeitem "session-workspace-resolver 1" [expanded] [ref=e548] [cursor=pointer]:
+              - img [ref=e550]
+              - img [ref=e552]
+              - generic [ref=e555]: session-workspace-resolver
+              - generic [ref=e556]: "1"
+            - treeitem "session_workspace_resolver lib" [ref=e559] [cursor=pointer]:
+              - img [ref=e560]
+              - generic [ref=e563]: session_workspace_resolver
+              - generic [ref=e564]: lib
+          - generic [ref=e565]:
+            - treeitem "session-worktree-provision 1" [expanded] [ref=e566] [cursor=pointer]:
+              - img [ref=e568]
+              - img [ref=e570]
+              - generic [ref=e573]: session-worktree-provision
+              - generic [ref=e574]: "1"
+            - treeitem "session_worktree_provision lib" [ref=e577] [cursor=pointer]:
+              - img [ref=e578]
+              - generic [ref=e581]: session_worktree_provision
+              - generic [ref=e582]: lib
+          - generic [ref=e583]:
+            - treeitem "spec 4" [expanded] [ref=e584] [cursor=pointer]:
+              - img [ref=e586]
+              - img [ref=e588]
+              - generic [ref=e591]: spec
+              - generic [ref=e592]: "4"
+            - generic [ref=e593]:
+              - treeitem "spec bin" [ref=e595] [cursor=pointer]:
+                - img [ref=e596]
+                - generic [ref=e599]: spec
+                - generic [ref=e600]: bin
+              - treeitem "spec lib" [ref=e602] [cursor=pointer]:
+                - img [ref=e603]
+                - generic [ref=e606]: spec
+                - generic [ref=e607]: lib
+              - treeitem "spec-http bin" [ref=e609] [cursor=pointer]:
+                - img [ref=e610]
+                - generic [ref=e613]: spec-http
+                - generic [ref=e614]: bin
+              - treeitem "spec-mcp bin" [ref=e616] [cursor=pointer]:
+                - img [ref=e617]
+                - generic [ref=e620]: spec-mcp
+                - generic [ref=e621]: bin
+          - generic [ref=e622]:
+            - treeitem "spec-api 1" [expanded] [ref=e623] [cursor=pointer]:
+              - img [ref=e625]
+              - img [ref=e627]
+              - generic [ref=e630]: spec-api
+              - generic [ref=e631]: "1"
+            - treeitem "spec_api lib" [ref=e634] [cursor=pointer]:
+              - img [ref=e635]
+              - generic [ref=e638]: spec_api
+              - generic [ref=e639]: lib
+          - generic [ref=e640]:
+            - treeitem "spec-viewer 1" [expanded] [ref=e641] [cursor=pointer]:
+              - img [ref=e643]
+              - img [ref=e645]
+              - generic [ref=e648]: spec-viewer
+              - generic [ref=e649]: "1"
+            - treeitem "spec-viewer bin" [ref=e652] [cursor=pointer]:
+              - img [ref=e653]
+              - generic [ref=e656]: spec-viewer
+              - generic [ref=e657]: bin
+          - generic [ref=e658]:
+            - treeitem "spec-viewer-dioxus 1" [expanded] [ref=e659] [cursor=pointer]:
+              - img [ref=e661]
+              - img [ref=e663]
+              - generic [ref=e666]: spec-viewer-dioxus
+              - generic [ref=e667]: "1"
+            - treeitem "spec-viewer-dioxus bin" [ref=e670] [cursor=pointer]:
+              - img [ref=e671]
+              - generic [ref=e674]: spec-viewer-dioxus
+              - generic [ref=e675]: bin
+          - generic [ref=e676]:
+            - treeitem "test-api 1" [expanded] [ref=e677] [cursor=pointer]:
+              - img [ref=e679]
+              - img [ref=e681]
+              - generic [ref=e684]: test-api
+              - generic [ref=e685]: "1"
+            - treeitem "test_api lib" [ref=e688] [cursor=pointer]:
+              - img [ref=e689]
+              - generic [ref=e692]: test_api
+              - generic [ref=e693]: lib
+          - generic [ref=e694]:
+            - treeitem "test-cli 2" [expanded] [ref=e695] [cursor=pointer]:
+              - img [ref=e697]
+              - img [ref=e699]
+              - generic [ref=e702]: test-cli
+              - generic [ref=e703]: "2"
+            - generic [ref=e704]:
+              - treeitem "test bin" [ref=e706] [cursor=pointer]:
+                - img [ref=e707]
+                - generic [ref=e710]: test
+                - generic [ref=e711]: bin
+              - treeitem "test_cli lib" [ref=e713] [cursor=pointer]:
+                - img [ref=e714]
+                - generic [ref=e717]: test_cli
+                - generic [ref=e718]: lib
+          - generic [ref=e719]:
+            - treeitem "test-mcp 2" [expanded] [ref=e720] [cursor=pointer]:
+              - img [ref=e722]
+              - img [ref=e724]
+              - generic [ref=e727]: test-mcp
+              - generic [ref=e728]: "2"
+            - generic [ref=e729]:
+              - treeitem "test-mcp bin" [ref=e731] [cursor=pointer]:
+                - img [ref=e732]
+                - generic [ref=e735]: test-mcp
+                - generic [ref=e736]: bin
+              - treeitem "test_mcp lib" [ref=e738] [cursor=pointer]:
+                - img [ref=e739]
+                - generic [ref=e742]: test_mcp
+                - generic [ref=e743]: lib
+          - generic [ref=e744]:
+            - treeitem "ticket 5" [expanded] [ref=e745] [cursor=pointer]:
+              - img [ref=e747]
+              - img [ref=e749]
+              - generic [ref=e752]: ticket
+              - generic [ref=e753]: "5"
+            - generic [ref=e754]:
+              - treeitem "ticket bin" [ref=e756] [cursor=pointer]:
+                - img [ref=e757]
+                - generic [ref=e760]: ticket
+                - generic [ref=e761]: bin
+              - treeitem "ticket lib" [ref=e763] [cursor=pointer]:
+                - img [ref=e764]
+                - generic [ref=e767]: ticket
+                - generic [ref=e768]: lib
+              - treeitem "ticket-http bin" [ref=e770] [cursor=pointer]:
+                - img [ref=e771]
+                - generic [ref=e774]: ticket-http
+                - generic [ref=e775]: bin
+              - treeitem "ticket-mcp bin" [ref=e777] [cursor=pointer]:
+                - img [ref=e778]
+                - generic [ref=e781]: ticket-mcp
+                - generic [ref=e782]: bin
+              - treeitem "ticket-record-merge bin" [ref=e784] [cursor=pointer]:
+                - img [ref=e785]
+                - generic [ref=e788]: ticket-record-merge
+                - generic [ref=e789]: bin
+          - generic [ref=e790]:
+            - treeitem "ticket-api 1" [expanded] [ref=e791] [cursor=pointer]:
+              - img [ref=e793]
+              - img [ref=e795]
+              - generic [ref=e798]: ticket-api
+              - generic [ref=e799]: "1"
+            - treeitem "ticket_api lib" [ref=e802] [cursor=pointer]:
+              - img [ref=e803]
+              - generic [ref=e806]: ticket_api
+              - generic [ref=e807]: lib
+          - generic [ref=e808]:
+            - treeitem "ticket-viewer 1" [expanded] [ref=e809] [cursor=pointer]:
+              - img [ref=e811]
+              - img [ref=e813]
+              - generic [ref=e816]: ticket-viewer
+              - generic [ref=e817]: "1"
+            - treeitem "ticket-viewer bin" [ref=e820] [cursor=pointer]:
+              - img [ref=e821]
+              - generic [ref=e824]: ticket-viewer
+              - generic [ref=e825]: bin
+          - generic [ref=e826]:
+            - treeitem "ticket-viewer-dioxus 1" [expanded] [ref=e827] [cursor=pointer]:
+              - img [ref=e829]
+              - img [ref=e831]
+              - generic [ref=e834]: ticket-viewer-dioxus
+              - generic [ref=e835]: "1"
+            - treeitem "ticket-viewer-dioxus bin" [ref=e838] [cursor=pointer]:
+              - img [ref=e839]
+              - generic [ref=e842]: ticket-viewer-dioxus
+              - generic [ref=e843]: bin
+          - generic [ref=e844]:
+            - treeitem "toolmon-costgate 1" [expanded] [ref=e845] [cursor=pointer]:
+              - img [ref=e847]
+              - img [ref=e849]
+              - generic [ref=e852]: toolmon-costgate
+              - generic [ref=e853]: "1"
+            - treeitem "toolmon_costgate lib" [ref=e856] [cursor=pointer]:
+              - img [ref=e857]
+              - generic [ref=e860]: toolmon_costgate
+              - generic [ref=e861]: lib
+          - generic [ref=e862]:
+            - treeitem "toolmon-policy-api 1" [expanded] [ref=e863] [cursor=pointer]:
+              - img [ref=e865]
+              - img [ref=e867]
+              - generic [ref=e870]: toolmon-policy-api
+              - generic [ref=e871]: "1"
+            - treeitem "toolmon_policy_api lib" [ref=e874] [cursor=pointer]:
+              - img [ref=e875]
+              - generic [ref=e878]: toolmon_policy_api
+              - generic [ref=e879]: lib
+          - generic [ref=e880]:
+            - treeitem "viewer-api 1" [expanded] [ref=e881] [cursor=pointer]:
+              - img [ref=e883]
+              - img [ref=e885]
+              - generic [ref=e888]: viewer-api
+              - generic [ref=e889]: "1"
+            - treeitem "viewer_api lib" [ref=e892] [cursor=pointer]:
+              - img [ref=e893]
+              - generic [ref=e896]: viewer_api
+              - generic [ref=e897]: lib
+          - generic [ref=e898]:
+            - treeitem "viewer-api-dioxus 2" [expanded] [ref=e899] [cursor=pointer]:
+              - img [ref=e901]
+              - img [ref=e903]
+              - generic [ref=e906]: viewer-api-dioxus
+              - generic [ref=e907]: "2"
+            - generic [ref=e908]:
+              - treeitem "viewer-api-dioxus bin" [ref=e910] [cursor=pointer]:
+                - img [ref=e911]
+                - generic [ref=e914]: viewer-api-dioxus
+                - generic [ref=e915]: bin
+              - treeitem "viewer_api_dioxus rlib" [ref=e917] [cursor=pointer]:
+                - img [ref=e918]
+                - generic [ref=e921]: viewer_api_dioxus
+                - generic [ref=e922]: rlib
+          - generic [ref=e923]:
+            - treeitem "worktree-ctl 1" [expanded] [ref=e924] [cursor=pointer]:
+              - img [ref=e926]
+              - img [ref=e928]
+              - generic [ref=e931]: worktree-ctl
+              - generic [ref=e932]: "1"
+            - treeitem "worktree-ctl bin" [ref=e935] [cursor=pointer]:
+              - img [ref=e936]
+              - generic [ref=e939]: worktree-ctl
+              - generic [ref=e940]: bin
+      - separator "Resize panel" [ref=e941]
+    - generic [ref=e943]:
+      - generic [ref=e944]:
+        - generic [ref=e945]: "workspace: C:\\Users\\linus\\git\\3\\meta-workspace\\workflow-tools"
+        - generic [ref=e946]: "manifest: C:\\Users\\linus\\git\\3\\meta-workspace\\workflow-tools\\Cargo.toml"
+        - generic [ref=e947]: "target: C:\\Users\\linus\\git\\3\\meta-workspace\\workflow-tools\\target"
+      - generic [ref=e950] [cursor=pointer]:
+        - generic [ref=e951]: doc-api::doc_api
+        - button "Close doc-api::doc_api" [ref=e952]:
+          - img
+      - navigation "Breadcrumb" [ref=e955]:
+        - button "doc-api" [ref=e956] [cursor=pointer]
+        - generic:
+          - img
+        - generic [ref=e957]: doc_api
+      - generic [ref=e958]:
+        - generic [ref=e959]: "kinds: lib"
+        - generic [ref=e960]: "html: C:\\Users\\linus\\git\\3\\meta-workspace\\workflow-tools\\target\\doc\\doc_api\\index.html"
+        - generic [ref=e961]: "json: C:\\Users\\linus\\git\\3\\meta-workspace\\workflow-tools\\target\\doc\\doc_api.json"
+      - button "HTML" [ref=e963] [cursor=pointer]
+      - iframe [ref=e964]:
+        - generic [active] [ref=f1e1]:
+          - link "Skip to main content" [ref=f1e2] [cursor=pointer]:
+            - /url: "#main-content"
+          - heading "Crate doc_api" [level=2] [ref=f1e4]:
+            - link "Crate doc_api" [ref=f1e5] [cursor=pointer]:
+              - /url: "#"
+          - navigation [ref=f1e6]:
+            - heading "doc_api0.1.0" [level=2] [ref=f1e8]:
+              - link "doc_api" [ref=f1e9] [cursor=pointer]:
+                - /url: ../doc_api/index.html
+              - text: 0.1.0
+            - generic [ref=f1e10]:
+              - list [ref=f1e11]:
+                - listitem [ref=f1e12]:
+                  - link "All Items" [ref=f1e13] [cursor=pointer]:
+                    - /url: all.html
+              - generic [ref=f1e14]:
+                - heading "Crate Items" [level=3] [ref=f1e15]:
+                  - link "Crate Items" [ref=f1e16] [cursor=pointer]:
+                    - /url: "#reexports"
+                - list [ref=f1e17]:
+                  - listitem [ref=f1e18]:
+                    - link "Re-exports" [ref=f1e19] [cursor=pointer]:
+                      - /url: "#reexports"
+                  - listitem [ref=f1e20]:
+                    - link "Modules" [ref=f1e21] [cursor=pointer]:
+                      - /url: "#modules"
+          - generic "Drag to resize sidebar"
+          - main [ref=f1e22]:
+            - generic [ref=f1e24]:
+              - generic [ref=f1e25]:
+                - heading "Crate doc_api Copy item path" [level=1] [ref=f1e26]:
+                  - text: Crate doc_api
+                  - button "Copy item path" [ref=f1e27]
+                - link "Source" [ref=f1e29] [cursor=pointer]:
+                  - /url: ../src/doc_api/lib.rs.html#1-19
+              - heading "Re-exports§" [level=2] [ref=f1e30]:
+                - text: Re-exports
+                - link "§" [ref=f1e31] [cursor=pointer]:
+                  - /url: "#reexports"
+              - generic [ref=f1e32]:
+                - term [ref=f1e33]:
+                  - code [ref=f1e34]:
+                    - text: "pub use error::"
+                    - link "DocError" [ref=f1e35] [cursor=pointer]:
+                      - /url: error/enum.DocError.html
+                    - text: ;
+                - term [ref=f1e36]:
+                  - code [ref=f1e37]:
+                    - text: "pub use evidence::"
+                    - link "DocEvidenceKind" [ref=f1e38] [cursor=pointer]:
+                      - /url: evidence/enum.DocEvidenceKind.html
+                    - text: ;
+                - term [ref=f1e39]:
+                  - code [ref=f1e40]:
+                    - text: "pub use evidence::"
+                    - link "DocEvidenceLinks" [ref=f1e41] [cursor=pointer]:
+                      - /url: evidence/struct.DocEvidenceLinks.html
+                    - text: ;
+                - term [ref=f1e42]:
+                  - code [ref=f1e43]:
+                    - text: "pub use evidence::"
+                    - link "DocEvidenceRecord" [ref=f1e44] [cursor=pointer]:
+                      - /url: evidence/struct.DocEvidenceRecord.html
+                    - text: ;
+                - term [ref=f1e45]:
+                  - code [ref=f1e46]:
+                    - text: "pub use evidence::"
+                    - link "DocEvidenceStatus" [ref=f1e47] [cursor=pointer]:
+                      - /url: evidence/enum.DocEvidenceStatus.html
+                    - text: ;
+                - term [ref=f1e48]:
+                  - code [ref=f1e49]:
+                    - text: "pub use outputs::"
+                    - link "CargoDocArtifact" [ref=f1e50] [cursor=pointer]:
+                      - /url: outputs/struct.CargoDocArtifact.html
+                    - text: ;
+                - term [ref=f1e51]:
+                  - code [ref=f1e52]:
+                    - text: "pub use workspace::"
+                    - link "DocPackage" [ref=f1e53] [cursor=pointer]:
+                      - /url: workspace/struct.DocPackage.html
+                    - text: ;
+                - term [ref=f1e54]:
+                  - code [ref=f1e55]:
+                    - text: "pub use workspace::"
+                    - link "DocTarget" [ref=f1e56] [cursor=pointer]:
+                      - /url: workspace/struct.DocTarget.html
+                    - text: ;
+                - term [ref=f1e57]:
+                  - code [ref=f1e58]:
+                    - text: "pub use workspace::"
+                    - link "DocWorkspace" [ref=f1e59] [cursor=pointer]:
+                      - /url: workspace/struct.DocWorkspace.html
+                    - text: ;
+                - term [ref=f1e60]:
+                  - code [ref=f1e61]:
+                    - text: "pub use workspace::"
+                    - link "DocWorkspaceSource" [ref=f1e62] [cursor=pointer]:
+                      - /url: workspace/enum.DocWorkspaceSource.html
+                    - text: ;
+              - heading "Modules§" [level=2] [ref=f1e63]:
+                - text: Modules
+                - link "§" [ref=f1e64] [cursor=pointer]:
+                  - /url: "#modules"
+              - generic [ref=f1e65]:
+                - term [ref=f1e66]:
+                  - link "error" [ref=f1e67] [cursor=pointer]:
+                    - /url: error/index.html
+                - term [ref=f1e68]:
+                  - link "evidence" [ref=f1e69] [cursor=pointer]:
+                    - /url: evidence/index.html
+                - term [ref=f1e70]:
+                  - link "outputs" [ref=f1e71] [cursor=pointer]:
+                    - /url: outputs/index.html
+                - term [ref=f1e72]:
+                  - link "workspace" [ref=f1e73] [cursor=pointer]:
+                    - /url: workspace/index.html
+```
+
+# Test source
+
+```ts
+  1  | import { loadAndInspectViewer } from '../../test_apis';
+  2  | import { test, expect } from '../playwright-runtime';
+  3  | import type { ViewerConfig } from '../managed-viewers';
+  4  | 
+  5  | export function registerCommonViewerSuite(viewer: ViewerConfig): void {
+  6  |   test.describe(`${viewer.name} — common suite`, () => {
+  7  |     test('renders without console errors or uncaught exceptions', async ({ page }) => {
+  8  |       test.setTimeout(90_000);
+  9  | 
+  10 |       const { errors } = await loadAndInspectViewer(
+  11 |         page,
+  12 |         viewer.url,
+  13 |         viewer.readySelector,
+  14 |         viewer.readyTimeout,
+  15 |       );
+  16 | 
+> 17 |       expect(errors, `${viewer.name} produced JS errors after loading`).toEqual([]);
+     |                                                                         ^ Error: doc-viewer produced JS errors after loading
+  18 |     });
+  19 | 
+  20 |     test('no missing static assets (no 404 for JS/CSS/WASM)', async ({ page }) => {
+  21 |       test.setTimeout(90_000);
+  22 | 
+  23 |       const { missingAssets } = await loadAndInspectViewer(
+  24 |         page,
+  25 |         viewer.url,
+  26 |         viewer.readySelector,
+  27 |         viewer.readyTimeout,
+  28 |       );
+  29 | 
+  30 |       expect(missingAssets, `${viewer.name} has missing static assets`).toEqual([]);
+  31 |     });
+  32 | 
+  33 |     test('ready-selector is visible after load', async ({ page }) => {
+  34 |       test.setTimeout(90_000);
+  35 | 
+  36 |       await page.goto(viewer.url, { waitUntil: 'domcontentloaded' });
+  37 |       await expect(page.locator(viewer.readySelector).first()).toBeVisible({
+  38 |         timeout: viewer.readyTimeout,
+  39 |       });
+  40 |     });
+  41 |   });
+  42 | }
+```
