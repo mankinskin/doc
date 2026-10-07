@@ -5,11 +5,7 @@ use std::path::Path;
 use viewer_api::to_unix_path;
 
 use crate::{
-    schema::{
-        DocType,
-        ModuleTreeNode,
-        PlanStatus,
-    },
+    schema::{DocType, ModuleTreeNode, PlanStatus},
     tools,
 };
 
@@ -31,8 +27,7 @@ pub fn parse_doc_type(s: &str) -> Option<DocType> {
         "guide" | "guides" => Some(DocType::Guide),
         "plan" | "plans" => Some(DocType::Plan),
         "implemented" => Some(DocType::Implemented),
-        "bug-report" | "bug-reports" | "bug_report" | "bugreport" =>
-            Some(DocType::BugReport),
+        "bug-report" | "bug-reports" | "bug_report" | "bugreport" => Some(DocType::BugReport),
         "analysis" => Some(DocType::Analysis),
         _ => None,
     }
@@ -51,8 +46,7 @@ pub fn parse_detail_level(s: &str) -> tools::DetailLevel {
 pub fn parse_status(s: &str) -> Option<PlanStatus> {
     match s.to_lowercase().as_str() {
         "design" => Some(PlanStatus::Design),
-        "in-progress" | "in_progress" | "inprogress" =>
-            Some(PlanStatus::InProgress),
+        "in-progress" | "in_progress" | "inprogress" => Some(PlanStatus::InProgress),
         "completed" | "complete" | "done" => Some(PlanStatus::Completed),
         "blocked" => Some(PlanStatus::Blocked),
         "superseded" | "abandoned" => Some(PlanStatus::Superseded),
@@ -61,10 +55,7 @@ pub fn parse_status(s: &str) -> Option<PlanStatus> {
 }
 
 /// Format a module tree node as markdown
-pub fn format_module_tree(
-    node: &ModuleTreeNode,
-    depth: usize,
-) -> String {
+pub fn format_module_tree(node: &ModuleTreeNode, depth: usize) -> String {
     use std::fmt::Write;
     let mut md = String::new();
     let indent = "  ".repeat(depth);
@@ -96,8 +87,7 @@ pub fn format_module_tree(
     if !node.files.is_empty() {
         let _ = writeln!(md, "{}**Files:**", indent);
         for f in &node.files {
-            let _ =
-                writeln!(md, "{}- `{}` - {}", indent, f.name, f.description);
+            let _ = writeln!(md, "{}- `{}` - {}", indent, f.name, f.description);
         }
         let _ = writeln!(md);
     }
@@ -118,10 +108,7 @@ mod tests {
     fn normalizes_unix_paths() {
         let path = Path::new("C:\\Users\\test\\file.txt");
         assert_eq!(unix_path(path), "C:/Users/test/file.txt");
-        assert_eq!(
-            normalize_path_str("src\\graph\\mod.rs"),
-            "src/graph/mod.rs"
-        );
+        assert_eq!(normalize_path_str("src\\graph\\mod.rs"), "src/graph/mod.rs");
     }
 
     #[test]

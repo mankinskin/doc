@@ -1,10 +1,6 @@
 use std::path::PathBuf;
 
-use doc_http::{
-    DocAppState,
-    ServeConfig,
-    start_server,
-};
+use doc_http::{DocAppState, ServeConfig, start_server};
 use memory_kernel::runtime::init_transport_tracing;
 
 #[tokio::main]
@@ -22,16 +18,16 @@ async fn main() {
             "--port" => {
                 i += 1;
                 port = args[i].parse().expect("invalid port");
-            },
+            }
             "--host" => {
                 i += 1;
                 host = args[i].clone();
-            },
+            }
             "--repo-root" => {
                 i += 1;
                 repo_root = Some(PathBuf::from(&args[i]));
-            },
-            _ => {},
+            }
+            _ => {}
         }
         i += 1;
     }

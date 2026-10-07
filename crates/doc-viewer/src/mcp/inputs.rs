@@ -8,10 +8,7 @@
 //! - update: Update existing documentation
 //! - delete: Delete documentation
 
-use rmcp::schemars::{
-    self,
-    JsonSchema,
-};
+use rmcp::schemars::{self, JsonSchema};
 use serde::Deserialize;
 
 // === LIST Tool ===

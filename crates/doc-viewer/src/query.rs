@@ -37,8 +37,7 @@ mod tests {
     #[test]
     fn test_filter_contains() {
         // Note: contains() is case-sensitive in jq
-        let filter =
-            JqFilter::compile("select(.title | contains(\"search\"))").unwrap();
+        let filter = JqFilter::compile("select(.title | contains(\"search\"))").unwrap();
 
         let match_doc = json!({"title": "search guide"});
         let no_match = json!({"title": "Other guide"});
@@ -50,9 +49,7 @@ mod tests {
     #[test]
     fn test_filter_case_insensitive() {
         // Use test() with "i" flag for case-insensitive matching
-        let filter =
-            JqFilter::compile("select(.title | test(\"search\"; \"i\"))")
-                .unwrap();
+        let filter = JqFilter::compile("select(.title | test(\"search\"; \"i\"))").unwrap();
 
         let match_upper = json!({"title": "Search Guide"});
         let match_lower = json!({"title": "search guide"});
@@ -65,8 +62,7 @@ mod tests {
 
     #[test]
     fn test_filter_array_any() {
-        let filter =
-            JqFilter::compile("select(.tags | any(. == \"testing\"))").unwrap();
+        let filter = JqFilter::compile("select(.tags | any(. == \"testing\"))").unwrap();
 
         let match_doc = json!({"tags": ["testing", "debug"]});
         let no_match = json!({"tags": ["production"]});
@@ -97,9 +93,7 @@ mod tests {
             json!({"doc_type": "guide", "title": "Another Guide"}),
         ];
 
-        let results =
-            filter_values(docs.iter(), "select(.doc_type == \"guide\")")
-                .unwrap();
+        let results = filter_values(docs.iter(), "select(.doc_type == \"guide\")").unwrap();
 
         assert_eq!(results.len(), 2);
         assert_eq!(results[0]["title"], "Guide");
@@ -108,8 +102,7 @@ mod tests {
 
     #[test]
     fn test_date_comparison() {
-        let filter =
-            JqFilter::compile("select(.date >= \"20250201\")").unwrap();
+        let filter = JqFilter::compile("select(.date >= \"20250201\")").unwrap();
 
         let after = json!({"date": "20250215"});
         let before = json!({"date": "20250115"});

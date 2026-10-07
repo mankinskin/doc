@@ -1,22 +1,13 @@
 use axum::{
     Json,
-    extract::{
-        Path,
-        State,
-    },
+    extract::{Path, State},
     http::header,
-    response::{
-        Html,
-        IntoResponse,
-    },
+    response::{Html, IntoResponse},
 };
 use doc_api::CargoDocArtifact;
 use serde::Serialize;
 
-use crate::{
-    error::DocHttpError,
-    state::DocAppState,
-};
+use crate::{error::DocHttpError, state::DocAppState};
 
 #[derive(Debug, Serialize)]
 pub struct WorkspaceResponse {
@@ -56,7 +47,7 @@ pub async fn healthz() -> &'static str {
 }
 
 pub async fn get_workspace(
-    State(state): State<DocAppState>
+    State(state): State<DocAppState>,
 ) -> Result<Json<WorkspaceResponse>, DocHttpError> {
     let workspace = state.load_workspace()?;
     let packages = workspace
@@ -85,7 +76,7 @@ pub async fn get_workspace(
 }
 
 pub async fn list_artifacts(
-    State(state): State<DocAppState>
+    State(state): State<DocAppState>,
 ) -> Result<Json<ArtifactListResponse>, DocHttpError> {
     let workspace = state.load_workspace()?;
     let artifacts = workspace.cargo_doc_artifacts();
@@ -129,9 +120,7 @@ pub async fn get_html_artifact(
     }
     let html = tokio::fs::read_to_string(&artifact.html_index_path)
         .await
-        .map_err(|source| {
-            DocHttpError::io(artifact.html_index_path.clone(), source)
-        })?;
+        .map_err(|source| DocHttpError::io(artifact.html_index_path.clone(), source))?;
     Ok(Html(html))
 }
 
@@ -149,9 +138,7 @@ pub async fn get_rustdoc_json_artifact(
     }
     let json = tokio::fs::read_to_string(&artifact.rustdoc_json_path)
         .await
-        .map_err(|source| {
-            DocHttpError::io(artifact.rustdoc_json_path.clone(), source)
-        })?;
+        .map_err(|source| DocHttpError::io(artifact.rustdoc_json_path.clone(), source))?;
     Ok(([(header::CONTENT_TYPE, "application/json")], json))
 }
 
@@ -165,8 +152,7 @@ fn find_artifact(
         .cargo_doc_artifacts()
         .into_iter()
         .find(|artifact| {
-            artifact.package_name == package_name
-                && artifact.target_name == target_name
+            artifact.package_name == package_name && artifact.target_name == target_name
         })
         .ok_or_else(|| DocHttpError::ArtifactNotFound {
             package: package_name.to_string(),

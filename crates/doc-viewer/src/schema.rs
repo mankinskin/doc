@@ -1,9 +1,6 @@
 //! Document schema definitions for structured agent documentation.
 
-use serde::{
-    Deserialize,
-    Serialize,
-};
+use serde::{Deserialize, Serialize};
 
 /// Document category/type.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
@@ -78,10 +75,7 @@ impl PlanStatus {
 }
 
 impl std::fmt::Display for PlanStatus {
-    fn fmt(
-        &self,
-        f: &mut std::fmt::Formatter<'_>,
-    ) -> std::fmt::Result {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             PlanStatus::Design => write!(f, "design"),
             PlanStatus::InProgress => write!(f, "in-progress"),
@@ -163,11 +157,7 @@ pub struct TypeWithModule {
 }
 
 impl TypeWithModule {
-    pub fn from_entry(
-        entry: &TypeEntry,
-        module_path: &str,
-        item_type: &str,
-    ) -> Self {
+    pub fn from_entry(entry: &TypeEntry, module_path: &str, item_type: &str) -> Self {
         Self {
             name: entry.name.clone(),
             description: entry.description.clone(),
@@ -203,11 +193,7 @@ impl<'de> serde::Deserialize<'de> for TypeEntry {
     where
         D: serde::Deserializer<'de>,
     {
-        use serde::de::{
-            self,
-            MapAccess,
-            Visitor,
-        };
+        use serde::de::{self, MapAccess, Visitor};
         use std::fmt;
 
         struct TypeEntryVisitor;
@@ -215,17 +201,11 @@ impl<'de> serde::Deserialize<'de> for TypeEntry {
         impl<'de> Visitor<'de> for TypeEntryVisitor {
             type Value = TypeEntry;
 
-            fn expecting(
-                &self,
-                formatter: &mut fmt::Formatter,
-            ) -> fmt::Result {
+            fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
                 formatter.write_str("a string or a map with one key-value pair")
             }
 
-            fn visit_str<E>(
-                self,
-                v: &str,
-            ) -> Result<Self::Value, E>
+            fn visit_str<E>(self, v: &str) -> Result<Self::Value, E>
             where
                 E: de::Error,
             {
@@ -235,24 +215,17 @@ impl<'de> serde::Deserialize<'de> for TypeEntry {
                 })
             }
 
-            fn visit_map<A>(
-                self,
-                mut map: A,
-            ) -> Result<Self::Value, A::Error>
+            fn visit_map<A>(self, mut map: A) -> Result<Self::Value, A::Error>
             where
                 A: MapAccess<'de>,
             {
-                if let Some((key, value)) =
-                    map.next_entry::<String, String>()?
-                {
+                if let Some((key, value)) = map.next_entry::<String, String>()? {
                     Ok(TypeEntry {
                         name: key,
                         description: Some(value),
                     })
                 } else {
-                    Err(de::Error::custom(
-                        "expected a map with one key-value pair",
-                    ))
+                    Err(de::Error::custom("expected a map with one key-value pair"))
                 }
             }
         }
@@ -537,19 +510,11 @@ impl StaleDocsReport {
         // Stale items (prioritize these)
         if !self.stale_items.is_empty() {
             out.push_str("## Stale Documentation\n\n");
-            out.push_str(
-                "| Status | Location | Days Since Sync | Modified Files |\n",
-            );
-            out.push_str(
-                "|--------|----------|-----------------|----------------|\n",
-            );
+            out.push_str("| Status | Location | Days Since Sync | Modified Files |\n");
+            out.push_str("|--------|----------|-----------------|----------------|\n");
             for item in &self.stale_items {
                 let location = match &item.module_path {
-                    Some(mp) => format!(
-                        "{}::{}",
-                        item.crate_name,
-                        mp.replace('/', "::")
-                    ),
+                    Some(mp) => format!("{}::{}", item.crate_name, mp.replace('/', "::")),
                     None => item.crate_name.clone(),
                 };
                 let days = item
@@ -578,11 +543,7 @@ impl StaleDocsReport {
             out.push_str("These documentation items don't have `source_files` configured and cannot be checked for staleness:\n\n");
             for item in &self.unknown_items {
                 let location = match &item.module_path {
-                    Some(mp) => format!(
-                        "{}::{}",
-                        item.crate_name,
-                        mp.replace('/', "::")
-                    ),
+                    Some(mp) => format!("{}::{}", item.crate_name, mp.replace('/', "::")),
                     None => item.crate_name.clone(),
                 };
                 out.push_str(&format!("- {}\n", location));
@@ -656,8 +617,7 @@ impl SyncAnalysisResult {
     pub fn to_markdown(&self) -> String {
         let mut out = String::new();
         let location = match &self.module_path {
-            Some(mp) =>
-                format!("{}::{}", self.crate_name, mp.replace('/', "::")),
+            Some(mp) => format!("{}::{}", self.crate_name, mp.replace('/', "::")),
             None => self.crate_name.clone(),
         };
         out.push_str(&format!("# Sync Analysis: {}\n\n", location));
@@ -675,10 +635,7 @@ impl SyncAnalysisResult {
         out
     }
 
-    fn push_errors_section(
-        &self,
-        out: &mut String,
-    ) {
+    fn push_errors_section(&self, out: &mut String) {
         if self.errors.is_empty() {
             return;
         }
@@ -689,10 +646,7 @@ impl SyncAnalysisResult {
         out.push('\n');
     }
 
-    fn push_summary_section(
-        &self,
-        out: &mut String,
-    ) {
+    fn push_summary_section(&self, out: &mut String) {
         let Some(summary) = &self.summary else {
             return;
         };
@@ -704,10 +658,7 @@ impl SyncAnalysisResult {
         ));
     }
 
-    fn push_public_items_section(
-        &self,
-        out: &mut String,
-    ) {
+    fn push_public_items_section(&self, out: &mut String) {
         if self.public_types.is_empty()
             && self.public_traits.is_empty()
             && self.public_macros.is_empty()
@@ -720,14 +671,9 @@ impl SyncAnalysisResult {
         push_public_item_group(out, "Macros", &self.public_macros);
     }
 
-    fn push_suggestions_section(
-        &self,
-        out: &mut String,
-    ) {
+    fn push_suggestions_section(&self, out: &mut String) {
         if self.suggestions.is_empty() {
-            out.push_str(
-                "✅ No suggested changes - documentation appears up to date.\n",
-            );
+            out.push_str("✅ No suggested changes - documentation appears up to date.\n");
             return;
         }
         out.push_str("## Suggested Changes\n\n");
@@ -746,22 +692,14 @@ impl SyncAnalysisResult {
             };
             out.push_str(&format!(
                 "| {} {} | {} | `{}` | {} |\n",
-                action_icon,
-                sug.change_type,
-                sug.item_kind,
-                sug.item_name,
-                source
+                action_icon, sug.change_type, sug.item_kind, sug.item_name, source
             ));
         }
     }
 }
 
 /// Append a `**Label (n):** a, b, c` line for a non-empty public-item group.
-fn push_public_item_group(
-    out: &mut String,
-    label: &str,
-    items: &[String],
-) {
+fn push_public_item_group(out: &mut String, label: &str, items: &[String]) {
     if items.is_empty() {
         return;
     }

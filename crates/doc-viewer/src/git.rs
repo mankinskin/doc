@@ -3,20 +3,11 @@
 //! Uses git commands to determine file modification times and detect
 //! when documentation is out of sync with source files.
 
-use std::{
-    path::Path,
-    process::Command,
-};
+use std::{path::Path, process::Command};
 
-use chrono::{
-    DateTime,
-    Utc,
-};
+use chrono::{DateTime, Utc};
 
-use crate::{
-    helpers::normalize_path_str,
-    schema::FileModificationInfo,
-};
+use crate::{helpers::normalize_path_str, schema::FileModificationInfo};
 
 /// Check if a directory is a git repository
 pub fn is_git_repository(path: &Path) -> bool {
@@ -42,10 +33,7 @@ pub struct GitFileInfo {
 /// Get git information for a file
 ///
 /// Returns None if the file is not tracked by git or doesn't exist.
-pub fn get_file_info(
-    repo_path: &Path,
-    file_path: &str,
-) -> Option<GitFileInfo> {
+pub fn get_file_info(repo_path: &Path, file_path: &str) -> Option<GitFileInfo> {
     // Get the last commit that modified this file
     // Format: %H = full hash, %h = short hash, %aI = author date ISO 8601, %s = subject
     let output = Command::new("git")
@@ -78,10 +66,7 @@ pub fn get_file_info(
 }
 
 /// Get modification info for multiple files
-pub fn get_files_info(
-    repo_path: &Path,
-    file_paths: &[String],
-) -> Vec<FileModificationInfo> {
+pub fn get_files_info(repo_path: &Path, file_paths: &[String]) -> Vec<FileModificationInfo> {
     file_paths
         .iter()
         .map(|path| {
@@ -110,9 +95,7 @@ pub fn get_files_info(
 }
 
 /// Get the most recent modification time from a list of file infos
-pub fn get_most_recent_modification(
-    files: &[FileModificationInfo]
-) -> Option<String> {
+pub fn get_most_recent_modification(files: &[FileModificationInfo]) -> Option<String> {
     files
         .iter()
         .filter_map(|f| f.last_modified.as_ref())

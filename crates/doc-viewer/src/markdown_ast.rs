@@ -22,14 +22,8 @@
 //! .. | select(.type? == "listItem")
 //! ```
 
-use markdown::{
-    to_mdast,
-    ParseOptions,
-};
-use serde_json::{
-    json,
-    Value,
-};
+use markdown::{to_mdast, ParseOptions};
+use serde_json::{json, Value};
 
 /// Parse markdown content into a JSON AST.
 pub fn parse_markdown_to_json(content: &str) -> Result<Value, String> {
@@ -456,10 +450,7 @@ mod tests {
 
         assert_eq!(json["children"][0]["type"], "list");
         assert_eq!(json["children"][0]["ordered"], false);
-        assert_eq!(
-            json["children"][0]["children"].as_array().unwrap().len(),
-            3
-        );
+        assert_eq!(json["children"][0]["children"].as_array().unwrap().len(), 3);
     }
 
     #[test]

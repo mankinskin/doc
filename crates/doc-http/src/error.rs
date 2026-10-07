@@ -3,10 +3,7 @@ use std::path::PathBuf;
 use axum::{
     Json,
     http::StatusCode,
-    response::{
-        IntoResponse,
-        Response,
-    },
+    response::{IntoResponse, Response},
 };
 use serde::Serialize;
 use thiserror::Error;
@@ -19,9 +16,7 @@ pub enum DocHttpError {
     #[error("package not found: {0}")]
     PackageNotFound(String),
 
-    #[error(
-        "artifact not found for package '{package}', target '{target}', kind '{kind}'"
-    )]
+    #[error("artifact not found for package '{package}', target '{target}', kind '{kind}'")]
     ArtifactNotFound {
         package: String,
         target: String,
@@ -43,10 +38,7 @@ pub struct ApiError {
 }
 
 impl DocHttpError {
-    pub fn io(
-        path: PathBuf,
-        source: std::io::Error,
-    ) -> Self {
+    pub fn io(path: PathBuf, source: std::io::Error) -> Self {
         Self::Io { path, source }
     }
 
@@ -61,8 +53,7 @@ impl DocHttpError {
 
     fn status(&self) -> StatusCode {
         match self {
-            Self::PackageNotFound(_) | Self::ArtifactNotFound { .. } =>
-                StatusCode::NOT_FOUND,
+            Self::PackageNotFound(_) | Self::ArtifactNotFound { .. } => StatusCode::NOT_FOUND,
             Self::Doc(_) | Self::Io { .. } => StatusCode::INTERNAL_SERVER_ERROR,
         }
     }

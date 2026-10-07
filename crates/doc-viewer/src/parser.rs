@@ -2,20 +2,11 @@
 
 use crate::{
     helpers::unix_path,
-    schema::{
-        CrateMetadata,
-        DocMetadata,
-        DocType,
-        ModuleMetadata,
-        PlanStatus,
-    },
+    schema::{CrateMetadata, DocMetadata, DocType, ModuleMetadata, PlanStatus},
 };
 use regex::Regex;
 use serde::de::DeserializeOwned;
-use std::{
-    fs,
-    path::Path,
-};
+use std::{fs, path::Path};
 
 /// Parse a document filename to extract date and base name.
 pub fn parse_filename(filename: &str) -> Option<(String, String)> {
@@ -45,7 +36,7 @@ pub fn parse_frontmatter(content: &str) -> Option<FrontMatter> {
                 "tags" => fm.tags = parse_tags(value),
                 "summary" => fm.summary = Some(value.to_string()),
                 "status" => fm.status = parse_status(value),
-                _ => {},
+                _ => {}
             }
         }
     }
@@ -90,10 +81,7 @@ pub fn parse_title(content: &str) -> Option<String> {
 }
 
 /// Extract document metadata from file path and content.
-pub fn extract_metadata(
-    path: &Path,
-    content: &str,
-) -> Option<DocMetadata> {
+pub fn extract_metadata(path: &Path, content: &str) -> Option<DocMetadata> {
     let filename = path.file_name()?.to_str()?;
     let parent = path.parent()?.file_name()?.to_str()?;
 
@@ -126,11 +114,8 @@ pub fn parse_yaml_file<T: DeserializeOwned>(path: &Path) -> Result<T, String> {
 }
 
 /// Parse YAML content into a typed structure.
-pub fn parse_yaml_content<T: DeserializeOwned>(
-    content: &str
-) -> Result<T, String> {
-    serde_yaml::from_str(content)
-        .map_err(|e| format!("YAML parse error: {}", e))
+pub fn parse_yaml_content<T: DeserializeOwned>(content: &str) -> Result<T, String> {
+    serde_yaml::from_str(content).map_err(|e| format!("YAML parse error: {}", e))
 }
 
 /// Parse a crate's root index.yaml file.
@@ -145,8 +130,7 @@ pub fn parse_module_index(path: &Path) -> Result<ModuleMetadata, String> {
 
 /// Read a markdown file's content.
 pub fn read_markdown_file(path: &Path) -> Result<String, String> {
-    fs::read_to_string(path)
-        .map_err(|e| format!("Failed to read {}: {}", unix_path(path), e))
+    fs::read_to_string(path).map_err(|e| format!("Failed to read {}: {}", unix_path(path), e))
 }
 
 #[cfg(test)]
@@ -155,8 +139,7 @@ mod tests {
 
     #[test]
     fn test_parse_filename() {
-        let (date, name) =
-            parse_filename("20251203_SEARCH_ALGORITHM_GUIDE.md").unwrap();
+        let (date, name) = parse_filename("20251203_SEARCH_ALGORITHM_GUIDE.md").unwrap();
         assert_eq!(date, "20251203");
         assert_eq!(name, "SEARCH_ALGORITHM_GUIDE");
     }

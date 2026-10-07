@@ -94,10 +94,7 @@ pub fn compile_search_regex(query: &str) -> ToolResult<Option<Regex>> {
 
 /// Check if the regex matches the given text.
 /// Returns true if regex is None (empty query matches all).
-pub fn regex_matches(
-    text: &str,
-    regex: &Option<Regex>,
-) -> bool {
+pub fn regex_matches(text: &str, regex: &Option<Regex>) -> bool {
     match regex {
         Some(re) => re.is_match(text),
         None => true,
@@ -109,10 +106,7 @@ mod tests {
     use super::*;
 
     // Helper to test if query matches text
-    fn matches(
-        query: &str,
-        text: &str,
-    ) -> bool {
+    fn matches(query: &str, text: &str) -> bool {
         let regex = compile_search_regex(query).unwrap();
         regex_matches(text, &regex)
     }

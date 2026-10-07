@@ -35,25 +35,11 @@ mod schema;
 mod templates;
 mod tools;
 
-use doc_http::{
-    build_router as build_doc_http_router,
-    DocAppState,
-};
-use rmcp::{
-    transport::stdio,
-    ServiceExt,
-};
-use std::{
-    env,
-    path::PathBuf,
-    sync::Arc,
-};
+use doc_http::{build_router as build_doc_http_router, DocAppState};
+use rmcp::{transport::stdio, ServiceExt};
+use std::{env, path::PathBuf, sync::Arc};
 use viewer_api::{
-    display_host,
-    init_tracing_full,
-    session::SessionStore,
-    to_unix_path,
-    tracing::info,
+    display_host, init_tracing_full, session::SessionStore, to_unix_path, tracing::info,
     TracingConfig,
 };
 
@@ -110,8 +96,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     }
 
     let mode = startup_mode_label(run_http, run_mcp);
-    let crates_dirs_display: Vec<_> =
-        crates_dirs.iter().map(|d| to_unix_path(d)).collect();
+    let crates_dirs_display: Vec<_> = crates_dirs.iter().map(|d| to_unix_path(d)).collect();
 
     if run_http {
         info!(mode, agents_dir = %to_unix_path(&agents_dir), crates_dirs = ?crates_dirs_display, "Doc Viewer Server starting");
@@ -138,10 +123,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 }
 
 /// Compute the human-readable startup mode label for the selected servers.
-fn startup_mode_label(
-    run_http: bool,
-    run_mcp: bool,
-) -> &'static str {
+fn startup_mode_label(run_http: bool, run_mcp: bool) -> &'static str {
     match (run_http, run_mcp) {
         (true, true) => "HTTP + MCP",
         (true, false) => "HTTP only",
@@ -158,9 +140,7 @@ fn resolve_workspace_root() -> PathBuf {
         .unwrap_or_else(|_| {
             // Try to detect workspace root from current directory (look for Cargo.toml with [workspace])
             if let Ok(cwd) = std::env::current_dir() {
-                if cwd.join("Cargo.toml").exists()
-                    && cwd.join("agents").exists()
-                {
+                if cwd.join("Cargo.toml").exists() && cwd.join("agents").exists() {
                     return cwd;
                 }
             }
@@ -180,26 +160,22 @@ fn resolve_crates_dirs(workspace_root: &std::path::Path) -> Vec<PathBuf> {
     std::env::var("CRATES_DIRS")
         .or_else(|_| std::env::var("CRATES_DIR")) // Backwards compatibility
         .map(|val| std::env::split_paths(&val).collect())
-        .unwrap_or_else(|_| {
-            vec![workspace_root.join("crates"), workspace_root.join("tools")]
-        })
+        .unwrap_or_else(|_| vec![workspace_root.join("crates"), workspace_root.join("tools")])
 }
 
 /// Spawn the MCP stdio server on a background task, logging any errors.
-fn spawn_background_mcp_server(
-    agents_dir: PathBuf,
-    crates_dirs: Vec<PathBuf>,
-) {
+fn spawn_background_mcp_server(agents_dir: PathBuf, crates_dirs: Vec<PathBuf>) {
     tokio::spawn(async move {
         let server = DocsServer::new(agents_dir, crates_dirs);
         match server.serve(stdio()).await {
-            Ok(service) =>
+            Ok(service) => {
                 if let Err(e) = service.waiting().await {
                     eprintln!("MCP server error while waiting: {:?}", e);
-                },
+                }
+            }
             Err(e) => {
                 eprintln!("MCP server initialization error: {:?}", e);
-            },
+            }
         }
     });
 }
@@ -228,9 +204,9 @@ async fn run_http_server(
         sessions: SessionStore::new(),
     };
 
-    let app = http::create_router(state, Some(static_dir)).merge(
-        build_doc_http_router(DocAppState::new(workspace_root.clone())),
-    );
+    let app = http::create_router(state, Some(static_dir)).merge(build_doc_http_router(
+        DocAppState::new(workspace_root.clone()),
+    ));
 
     let bind_addr = format!("0.0.0.0:{}", port);
     let listener = tokio::net::TcpListener::bind(&bind_addr).await?;
@@ -248,10 +224,7 @@ async fn run_http_server(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use helpers::{
-        format_module_tree,
-        parse_doc_type,
-    };
+    use helpers::{format_module_tree, parse_doc_type};
     use schema::DocType;
 
     #[test]
@@ -263,11 +236,7 @@ mod tests {
 
     #[test]
     fn test_format_module_tree() {
-        use schema::{
-            FileEntry,
-            ModuleTreeNode,
-            TypeEntry,
-        };
+        use schema::{FileEntry, ModuleTreeNode, TypeEntry};
         let tree = ModuleTreeNode {
             name: "test".to_string(),
             path: "".to_string(),

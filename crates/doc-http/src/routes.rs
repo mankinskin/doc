@@ -1,16 +1,7 @@
-use axum::{
-    Router,
-    routing::get,
-};
-use tower_http::cors::{
-    Any,
-    CorsLayer,
-};
+use axum::{Router, routing::get};
+use tower_http::cors::{Any, CorsLayer};
 
-use crate::{
-    handlers,
-    state::DocAppState,
-};
+use crate::{handlers, state::DocAppState};
 
 pub fn build_router(state: DocAppState) -> Router {
     let cors = CorsLayer::new()

@@ -1,18 +1,8 @@
-use std::path::{
-    Path,
-    PathBuf,
-};
+use std::path::{Path, PathBuf};
 
-use serde::{
-    Deserialize,
-    Serialize,
-};
+use serde::{Deserialize, Serialize};
 
-use crate::workspace::{
-    DocPackage,
-    DocTarget,
-    DocWorkspace,
-};
+use crate::workspace::{DocPackage, DocTarget, DocWorkspace};
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct CargoDocArtifact {
@@ -58,20 +48,11 @@ impl DocWorkspace {
 }
 
 impl DocPackage {
-    pub fn cargo_doc_artifacts(
-        &self,
-        doc_root: &Path,
-    ) -> Vec<CargoDocArtifact> {
+    pub fn cargo_doc_artifacts(&self, doc_root: &Path) -> Vec<CargoDocArtifact> {
         self.targets
             .iter()
             .filter(|target| target.doc_capable)
-            .map(|target| {
-                target.cargo_doc_artifact(
-                    &self.name,
-                    &self.package_root,
-                    doc_root,
-                )
-            })
+            .map(|target| target.cargo_doc_artifact(&self.name, &self.package_root, doc_root))
             .collect()
     }
 }
@@ -104,10 +85,7 @@ impl DocTarget {
 
 #[cfg(test)]
 mod tests {
-    use std::{
-        fs,
-        path::Path,
-    };
+    use std::{fs, path::Path};
 
     use cargo_metadata::MetadataCommand;
     use pretty_assertions::assert_eq;
@@ -128,9 +106,7 @@ mod tests {
             "<html>beta</html>",
         );
 
-        let workspace =
-            DocWorkspace::from_cargo_metadata(cargo_metadata_for(dir.path()))
-                .unwrap();
+        let workspace = DocWorkspace::from_cargo_metadata(cargo_metadata_for(dir.path())).unwrap();
         let artifacts = workspace.cargo_doc_artifacts();
 
         assert_eq!(artifacts.len(), 2);
@@ -173,9 +149,7 @@ mod tests {
     #[test]
     fn reports_expected_paths_when_outputs_are_missing() {
         let dir = temp_workspace();
-        let workspace =
-            DocWorkspace::from_cargo_metadata(cargo_metadata_for(dir.path()))
-                .unwrap();
+        let workspace = DocWorkspace::from_cargo_metadata(cargo_metadata_for(dir.path())).unwrap();
 
         let artifacts = workspace.cargo_doc_artifacts();
 
@@ -239,10 +213,7 @@ edition = "2024"
             .unwrap()
     }
 
-    fn write_file(
-        path: &Path,
-        contents: &str,
-    ) {
+    fn write_file(path: &Path, contents: &str) {
         if let Some(parent) = path.parent() {
             fs::create_dir_all(parent).unwrap();
         }

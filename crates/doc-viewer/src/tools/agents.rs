@@ -7,43 +7,17 @@
 //! - bug-reports/ - Known issues and analyses
 //! - analysis/ - Algorithm analysis and comparisons
 
-use super::{
-    compile_search_regex,
-    regex_matches,
-    DetailLevel,
-    ListFilter,
-    ToolError,
-    ToolResult,
-};
+use super::{compile_search_regex, regex_matches, DetailLevel, ListFilter, ToolError, ToolResult};
 use crate::{
     helpers::unix_path,
-    parser::{
-        extract_metadata,
-        parse_filename,
-        parse_frontmatter,
-        parse_title,
-    },
-    schema::{
-        DocMetadata,
-        DocType,
-        IndexEntry,
-        PlanStatus,
-    },
-    templates::{
-        generate_document,
-        generate_index,
-    },
+    parser::{extract_metadata, parse_filename, parse_frontmatter, parse_title},
+    schema::{DocMetadata, DocType, IndexEntry, PlanStatus},
+    templates::{generate_document, generate_index},
 };
-use serde::{
-    Deserialize,
-    Serialize,
-};
+use serde::{Deserialize, Serialize};
 use std::{
     fs,
-    path::{
-        Path,
-        PathBuf,
-    },
+    path::{Path, PathBuf},
 };
 
 /// Documentation manager handling all operations.
@@ -57,10 +31,7 @@ impl DocsManager {
     }
 
     /// Create a new document from parameters.
-    pub fn create_document(
-        &self,
-        params: CreateDocParams,
-    ) -> ToolResult<CreateDocResult> {
+    pub fn create_document(&self, params: CreateDocParams) -> ToolResult<CreateDocResult> {
         let date = chrono::Local::now().format("%Y%m%d").to_string();
         let prefix = params.doc_type.file_prefix();
         let name_upper = params
@@ -101,10 +72,7 @@ impl DocsManager {
     }
 
     /// List all documents of a given type.
-    pub fn list_documents(
-        &self,
-        doc_type: DocType,
-    ) -> ToolResult<Vec<DocSummary>> {
+    pub fn list_documents(&self, doc_type: DocType) -> ToolResult<Vec<DocSummary>> {
         let dir = self.agents_dir.join(doc_type.directory());
         let mut docs = Vec::new();
 
@@ -148,10 +116,7 @@ impl DocsManager {
     }
 
     /// Update the INDEX.md for a document type.
-    pub fn update_index(
-        &self,
-        doc_type: DocType,
-    ) -> ToolResult<String> {
+    pub fn update_index(&self, doc_type: DocType) -> ToolResult<String> {
         let docs = self.list_documents(doc_type)?;
         let entries: Vec<IndexEntry> = docs
             .iter()
@@ -171,17 +136,13 @@ impl DocsManager {
     }
 
     /// Update metadata for an existing document.
-    pub fn update_document_metadata(
-        &self,
-        params: UpdateMetaParams,
-    ) -> ToolResult<()> {
+    pub fn update_document_metadata(&self, params: UpdateMetaParams) -> ToolResult<()> {
         let path = self.find_document(&params.filename)?;
         let content = fs::read_to_string(&path)?;
 
         // Parse existing and merge updates
-        let mut meta = extract_metadata(&path, &content).ok_or_else(|| {
-            ToolError::InvalidInput("Cannot parse document".into())
-        })?;
+        let mut meta = extract_metadata(&path, &content)
+            .ok_or_else(|| ToolError::InvalidInput("Cannot parse document".into()))?;
 
         if let Some(tags) = params.tags {
             meta.tags = tags;
@@ -276,8 +237,7 @@ impl DocsManager {
             report.issues.push(ValidationIssue {
                 file: filename.to_string(),
                 category: category.to_string(),
-                issue: "Invalid filename format - expected YYYYMMDD_NAME.md"
-                    .to_string(),
+                issue: "Invalid filename format - expected YYYYMMDD_NAME.md".to_string(),
                 severity: IssueSeverity::Error,
             });
         }
@@ -290,8 +250,7 @@ impl DocsManager {
             report.issues.push(ValidationIssue {
                 file: filename.to_string(),
                 category: category.to_string(),
-                issue: "Missing frontmatter (should start with ---)"
-                    .to_string(),
+                issue: "Missing frontmatter (should start with ---)".to_string(),
                 severity: IssueSeverity::Error,
             });
         } else if let Some(fm) = parse_frontmatter(&content) {
@@ -364,18 +323,8 @@ impl DocsManager {
             }
         }
 
-        Self::validate_index_coverage(
-            &index_content,
-            &doc_files,
-            category,
-            report,
-        );
-        Self::validate_index_format(
-            &index_content,
-            &doc_files,
-            category,
-            report,
-        );
+        Self::validate_index_coverage(&index_content, &doc_files, category, report);
+        Self::validate_index_format(&index_content, &doc_files, category, report);
     }
 
     /// Check that every document is listed and no stale entries remain.
@@ -391,28 +340,21 @@ impl DocsManager {
                 report.issues.push(ValidationIssue {
                     file: "INDEX.md".to_string(),
                     category: category.to_string(),
-                    issue: format!(
-                        "Document '{}' not listed in INDEX",
-                        doc_file
-                    ),
+                    issue: format!("Document '{}' not listed in INDEX", doc_file),
                     severity: IssueSeverity::Warning,
                 });
             }
         }
 
         // Check for stale entries in INDEX (files mentioned but don't exist)
-        let filename_pattern =
-            regex::Regex::new(r"\d{8}_[A-Za-z0-9_-]+\.md").unwrap();
+        let filename_pattern = regex::Regex::new(r"\d{8}_[A-Za-z0-9_-]+\.md").unwrap();
         for caps in filename_pattern.find_iter(index_content) {
             let mentioned_file = caps.as_str();
             if !doc_files.contains(&mentioned_file.to_string()) {
                 report.issues.push(ValidationIssue {
                     file: "INDEX.md".to_string(),
                     category: category.to_string(),
-                    issue: format!(
-                        "Stale entry '{}' - file does not exist",
-                        mentioned_file
-                    ),
+                    issue: format!("Stale entry '{}' - file does not exist", mentioned_file),
                     severity: IssueSeverity::Error,
                 });
             }
@@ -444,7 +386,8 @@ impl DocsManager {
             report.issues.push(ValidationIssue {
                 file: "INDEX.md".to_string(),
                 category: category.to_string(),
-                issue: "INDEX.md should use minimal table format: | Date | File | Summary |".to_string(),
+                issue: "INDEX.md should use minimal table format: | Date | File | Summary |"
+                    .to_string(),
                 severity: IssueSeverity::Warning,
             });
         }
@@ -464,7 +407,10 @@ impl DocsManager {
                 report.issues.push(ValidationIssue {
                     file: "INDEX.md".to_string(),
                     category: category.to_string(),
-                    issue: format!("INDEX.md too verbose - remove '{}' sections (use table format)", pattern),
+                    issue: format!(
+                        "INDEX.md too verbose - remove '{}' sections (use table format)",
+                        pattern
+                    ),
                     severity: IssueSeverity::Warning,
                 });
             }
@@ -477,16 +423,16 @@ impl DocsManager {
             report.issues.push(ValidationIssue {
                 file: "INDEX.md".to_string(),
                 category: category.to_string(),
-                issue: format!("INDEX.md too long ({} lines, expected <{}). Use minimal table format.", line_count, expected_max),
+                issue: format!(
+                    "INDEX.md too long ({} lines, expected <{}). Use minimal table format.",
+                    line_count, expected_max
+                ),
                 severity: IssueSeverity::Warning,
             });
         }
     }
 
-    fn find_document(
-        &self,
-        filename: &str,
-    ) -> ToolResult<PathBuf> {
+    fn find_document(&self, filename: &str) -> ToolResult<PathBuf> {
         for doc_type in [
             DocType::Guide,
             DocType::Plan,
@@ -494,8 +440,7 @@ impl DocsManager {
             DocType::BugReport,
             DocType::Analysis,
         ] {
-            let path =
-                self.agents_dir.join(doc_type.directory()).join(filename);
+            let path = self.agents_dir.join(doc_type.directory()).join(filename);
             if path.exists() {
                 return Ok(path);
             }
@@ -504,17 +449,13 @@ impl DocsManager {
     }
 
     /// Delete a document and update the index.
-    pub fn delete_document(
-        &self,
-        filename: &str,
-    ) -> ToolResult<String> {
+    pub fn delete_document(&self, filename: &str) -> ToolResult<String> {
         let path = self.find_document(filename)?;
 
         // Get doc type to update index
         let content = fs::read_to_string(&path)?;
-        let meta = extract_metadata(&path, &content).ok_or_else(|| {
-            ToolError::InvalidInput("Cannot parse document".into())
-        })?;
+        let meta = extract_metadata(&path, &content)
+            .ok_or_else(|| ToolError::InvalidInput("Cannot parse document".into()))?;
 
         // Delete the file
         fs::remove_file(&path)?;
@@ -526,17 +467,12 @@ impl DocsManager {
     }
 
     /// Read the full content of a document.
-    pub fn read_document(
-        &self,
-        filename: &str,
-        detail: DetailLevel,
-    ) -> ToolResult<ReadDocResult> {
+    pub fn read_document(&self, filename: &str, detail: DetailLevel) -> ToolResult<ReadDocResult> {
         let path = self.find_document(filename)?;
         let content = fs::read_to_string(&path)?;
 
-        let meta = extract_metadata(&path, &content).ok_or_else(|| {
-            ToolError::InvalidInput("Cannot parse document".into())
-        })?;
+        let meta = extract_metadata(&path, &content)
+            .ok_or_else(|| ToolError::InvalidInput("Cannot parse document".into()))?;
 
         let body = match detail {
             DetailLevel::Outline => extract_outline(&content),
@@ -569,8 +505,7 @@ impl DocsManager {
             .filter(|doc| {
                 // Filter by tag
                 if let Some(tag) = &filter.tag {
-                    let tag_lower =
-                        tag.to_lowercase().trim_start_matches('#').to_string();
+                    let tag_lower = tag.to_lowercase().trim_start_matches('#').to_string();
                     if !doc.tags.iter().any(|t| t.to_lowercase() == tag_lower) {
                         return false;
                     }
@@ -636,10 +571,7 @@ impl DocsManager {
     }
 
     /// Get documents that may need review (old documents).
-    pub fn get_docs_needing_review(
-        &self,
-        max_age_days: u32,
-    ) -> ToolResult<Vec<ReviewCandidate>> {
+    pub fn get_docs_needing_review(&self, max_age_days: u32) -> ToolResult<Vec<ReviewCandidate>> {
         let mut candidates = Vec::new();
         let today = chrono::Local::now().date_naive();
 
@@ -655,8 +587,7 @@ impl DocsManager {
             for doc in docs {
                 // Parse date from YYYYMMDD format
                 let doc_date =
-                    chrono::NaiveDate::parse_from_str(&doc.date, "%Y%m%d")
-                        .unwrap_or(today);
+                    chrono::NaiveDate::parse_from_str(&doc.date, "%Y%m%d").unwrap_or(today);
                 let age_days = (today - doc_date).num_days().max(0) as u64;
 
                 // Check age
@@ -709,8 +640,7 @@ impl DocsManager {
 
             for doc in docs {
                 files_searched += 1;
-                let path =
-                    self.agents_dir.join(dt.directory()).join(&doc.filename);
+                let path = self.agents_dir.join(dt.directory()).join(&doc.filename);
                 let content = fs::read_to_string(&path)?;
                 let lines: Vec<&str> = content.lines().collect();
 
@@ -723,17 +653,13 @@ impl DocsManager {
 
                         // Gather context before
                         let start = idx.saturating_sub(lines_before);
-                        let context_before: Vec<String> = lines[start..idx]
-                            .iter()
-                            .map(|s| s.to_string())
-                            .collect();
+                        let context_before: Vec<String> =
+                            lines[start..idx].iter().map(|s| s.to_string()).collect();
 
                         // Gather context after
                         let end = (idx + 1 + lines_after).min(lines.len());
-                        let context_after: Vec<String> = lines[idx + 1..end]
-                            .iter()
-                            .map(|s| s.to_string())
-                            .collect();
+                        let context_after: Vec<String> =
+                            lines[idx + 1..end].iter().map(|s| s.to_string()).collect();
 
                         excerpts.push(MatchExcerpt {
                             line_number: idx + 1,
@@ -784,8 +710,7 @@ impl DocsManager {
         };
 
         let regex = query.map(compile_search_regex).transpose()?.flatten();
-        let tag_lower =
-            tag.map(|t| t.to_lowercase().trim_start_matches('#').to_string());
+        let tag_lower = tag.map(|t| t.to_lowercase().trim_start_matches('#').to_string());
 
         let mut results = Vec::new();
 
@@ -803,20 +728,13 @@ impl DocsManager {
                     true
                 } else {
                     // Combine title/summary/tags for searching
-                    let searchable = format!(
-                        "{} {} {}",
-                        doc.title,
-                        doc.summary,
-                        doc.tags.join(" ")
-                    );
+                    let searchable =
+                        format!("{} {} {}", doc.title, doc.summary, doc.tags.join(" "));
 
                     if regex_matches(&searchable, &regex) {
                         true
                     } else if search_content {
-                        let path = self
-                            .agents_dir
-                            .join(dt.directory())
-                            .join(&doc.filename);
+                        let path = self.agents_dir.join(dt.directory()).join(&doc.filename);
                         if let Ok(content) = fs::read_to_string(&path) {
                             regex_matches(&content, &regex)
                         } else {
@@ -870,12 +788,7 @@ impl DocsManager {
 
             for entry in fs::read_dir(&dir)? {
                 let entry = entry?;
-                self.process_frontmatter_file(
-                    &entry.path(),
-                    dt,
-                    dry_run,
-                    &mut result,
-                )?;
+                self.process_frontmatter_file(&entry.path(), dt, dry_run, &mut result)?;
             }
         }
 
@@ -907,13 +820,11 @@ impl DocsManager {
             Err(e) => {
                 result.errors.push(format!("{}: {}", filename, e));
                 return Ok(());
-            },
+            }
         };
 
         // Check if frontmatter exists
-        if content.trim_start().starts_with("---")
-            && parse_frontmatter(&content).is_some()
-        {
+        if content.trim_start().starts_with("---") && parse_frontmatter(&content).is_some() {
             result.skipped += 1;
             return Ok(());
         }
@@ -926,8 +837,7 @@ impl DocsManager {
             )
         });
 
-        let title =
-            parse_title(&content).unwrap_or_else(|| filename.to_string());
+        let title = parse_title(&content).unwrap_or_else(|| filename.to_string());
 
         // Try to extract summary from first paragraph
         let summary = extract_summary(&content).unwrap_or_default();
@@ -950,8 +860,7 @@ impl DocsManager {
         };
 
         let frontmatter = generate_frontmatter(&meta);
-        let new_content =
-            format!("{}\n\n{}", frontmatter, content.trim_start());
+        let new_content = format!("{}\n\n{}", frontmatter, content.trim_start());
 
         result.changes.push(FrontmatterChange {
             filename: filename.to_string(),
@@ -972,10 +881,7 @@ impl DocsManager {
     }
 
     /// Get a health dashboard summarizing documentation status
-    pub fn health_dashboard(
-        &self,
-        detailed: bool,
-    ) -> ToolResult<HealthDashboard> {
+    pub fn health_dashboard(&self, detailed: bool) -> ToolResult<HealthDashboard> {
         let validation = self.validate()?;
 
         let mut dashboard = HealthDashboard {
@@ -996,8 +902,7 @@ impl DocsManager {
             DocType::BugReport,
             DocType::Analysis,
         ] {
-            let cat = self
-                .tally_category_health(doc_type, &mut docs_with_frontmatter);
+            let cat = self.tally_category_health(doc_type, &mut docs_with_frontmatter);
             dashboard.total_documents += cat.total;
             dashboard.old_documents += cat.old;
 
@@ -1009,17 +914,14 @@ impl DocsManager {
         // Calculate metrics from validation
         for issue in &validation.issues {
             match issue.issue.as_str() {
-                s if s.contains("not listed in INDEX") =>
-                    dashboard.index_sync_issues += 1,
-                s if s.contains("Invalid filename") =>
-                    dashboard.naming_issues += 1,
-                _ => {},
+                s if s.contains("not listed in INDEX") => dashboard.index_sync_issues += 1,
+                s if s.contains("Invalid filename") => dashboard.naming_issues += 1,
+                _ => {}
             }
         }
 
         dashboard.frontmatter_coverage = if dashboard.total_documents > 0 {
-            (docs_with_frontmatter as f64 / dashboard.total_documents as f64)
-                * 100.0
+            (docs_with_frontmatter as f64 / dashboard.total_documents as f64) * 100.0
         } else {
             100.0
         };
@@ -1043,8 +945,7 @@ impl DocsManager {
         for doc in &docs {
             let path = dir.join(&doc.filename);
             if let Ok(content) = fs::read_to_string(&path) {
-                if content.trim_start().starts_with("---")
-                    && parse_frontmatter(&content).is_some()
+                if content.trim_start().starts_with("---") && parse_frontmatter(&content).is_some()
                 {
                     fm_count += 1;
                     *docs_with_frontmatter += 1;
@@ -1070,10 +971,7 @@ impl DocsManager {
 // =============================================================================
 
 /// Pick a status icon from an "ok" / "warning" threshold pair.
-fn status_icon(
-    ok: bool,
-    warn: bool,
-) -> &'static str {
+fn status_icon(ok: bool, warn: bool) -> &'static str {
     if ok {
         "✅"
     } else if warn {
@@ -1084,10 +982,7 @@ fn status_icon(
 }
 
 /// Calculate age in days between two YYYYMMDD dates
-fn calculate_age_days(
-    date: &str,
-    today: &str,
-) -> u32 {
+fn calculate_age_days(date: &str, today: &str) -> u32 {
     use chrono::NaiveDate;
     let parse_date = |s: &str| NaiveDate::parse_from_str(s, "%Y%m%d").ok();
 
@@ -1122,11 +1017,7 @@ fn extract_summary(content: &str) -> Option<String> {
 }
 
 /// Infer tags from filename and content
-fn infer_tags(
-    filename: &str,
-    content: &str,
-    doc_type: DocType,
-) -> Vec<String> {
+fn infer_tags(filename: &str, content: &str, doc_type: DocType) -> Vec<String> {
     let mut tags = Vec::new();
 
     // Add doc type as tag
@@ -1202,8 +1093,7 @@ fn extract_body(content: &str) -> String {
     }
 
     // Find end of frontmatter
-    if let Some(end_idx) = lines.iter().skip(1).position(|l| l.trim() == "---")
-    {
+    if let Some(end_idx) = lines.iter().skip(1).position(|l| l.trim() == "---") {
         lines[end_idx + 2..].join("\n")
     } else {
         content.to_string()
@@ -1213,8 +1103,7 @@ fn extract_body(content: &str) -> String {
 /// Extract just the headers/outline from document content
 fn extract_outline(content: &str) -> Option<String> {
     let body = extract_body(content);
-    let headers: Vec<&str> =
-        body.lines().filter(|line| line.starts_with('#')).collect();
+    let headers: Vec<&str> = body.lines().filter(|line| line.starts_with('#')).collect();
 
     if headers.is_empty() {
         None
@@ -1231,10 +1120,7 @@ fn capitalize(s: &str) -> String {
     }
 }
 
-fn truncate(
-    s: &str,
-    max_len: usize,
-) -> String {
+fn truncate(s: &str, max_len: usize) -> String {
     if s.len() <= max_len {
         s.to_string()
     } else {

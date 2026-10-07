@@ -282,17 +282,13 @@ impl HealthDashboard {
             self.frontmatter_coverage, fm_status
         ));
 
-        let idx_status = status_icon(
-            self.index_sync_issues == 0,
-            self.index_sync_issues <= 5,
-        );
+        let idx_status = status_icon(self.index_sync_issues == 0, self.index_sync_issues <= 5);
         md.push_str(&format!(
             "| INDEX Sync Issues | {} | {} |\n",
             self.index_sync_issues, idx_status
         ));
 
-        let name_status =
-            status_icon(self.naming_issues == 0, self.naming_issues <= 3);
+        let name_status = status_icon(self.naming_issues == 0, self.naming_issues <= 3);
         md.push_str(&format!(
             "| Naming Issues | {} | {} |\n",
             self.naming_issues, name_status
@@ -331,8 +327,7 @@ impl HealthDashboard {
         md.push_str("## Recommendations\n\n");
         if self.frontmatter_coverage < 100.0 {
             let missing = self.total_documents
-                - (self.total_documents as f64 * self.frontmatter_coverage
-                    / 100.0) as usize;
+                - (self.total_documents as f64 * self.frontmatter_coverage / 100.0) as usize;
             md.push_str(&format!(
                 "- 🔧 Run `add_frontmatter` to add frontmatter to {} documents\n",
                 missing
@@ -342,10 +337,14 @@ impl HealthDashboard {
             md.push_str("- 🔧 Run `regenerate_index` for categories with INDEX sync issues\n");
         }
         if self.naming_issues > 0 {
-            md.push_str("- 📝 Rename files with invalid naming conventions to YYYYMMDD_NAME.md format\n");
+            md.push_str(
+                "- 📝 Rename files with invalid naming conventions to YYYYMMDD_NAME.md format\n",
+            );
         }
         if self.old_documents > 10 {
-            md.push_str("- 📋 Review old documents with `get_docs_needing_review` for potential updates\n");
+            md.push_str(
+                "- 📋 Review old documents with `get_docs_needing_review` for potential updates\n",
+            );
         }
 
         md
@@ -402,8 +401,7 @@ impl ReadDocResult {
         ));
 
         if !self.tags.is_empty() {
-            let tags: Vec<String> =
-                self.tags.iter().map(|t| format!("`#{}`", t)).collect();
+            let tags: Vec<String> = self.tags.iter().map(|t| format!("`#{}`", t)).collect();
             md.push_str(&format!("**Tags:** {}  \n", tags.join(" ")));
         }
 

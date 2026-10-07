@@ -20,13 +20,9 @@ impl CrateDocsManager {
         update_timestamp: bool,
         summary_only: bool,
     ) -> ToolResult<SyncAnalysisResult> {
-        let crate_path =
-            self.resolve_crate_path(crate_name).ok_or_else(|| {
-                ToolError::NotFound(format!(
-                    "Crate docs not found: {}",
-                    crate_name
-                ))
-            })?;
+        let crate_path = self
+            .resolve_crate_path(crate_name)
+            .ok_or_else(|| ToolError::NotFound(format!("Crate docs not found: {}", crate_name)))?;
         let docs_path = crate_path.join("agents").join("docs");
 
         let target_docs_path = match module_path {
@@ -57,8 +53,7 @@ impl CrateDocsManager {
         };
 
         // Get source files to analyze
-        let source_files =
-            Self::gather_sync_source_files(&index_path, module_path);
+        let source_files = Self::gather_sync_source_files(&index_path, module_path);
 
         if source_files.is_empty() {
             result
@@ -108,10 +103,7 @@ impl CrateDocsManager {
     }
 
     /// Read the configured `source_files` list from a crate or module index.
-    fn gather_sync_source_files(
-        index_path: &Path,
-        module_path: Option<&str>,
-    ) -> Vec<String> {
+    fn gather_sync_source_files(index_path: &Path, module_path: Option<&str>) -> Vec<String> {
         if module_path.is_some() {
             parse_module_index(index_path)
                 .map(|meta| meta.source_files)
@@ -144,12 +136,12 @@ impl CrateDocsManager {
             match fs::read_to_string(&file_path) {
                 Ok(content) => {
                     self.analyze_rust_source(&content, source_file, result);
-                },
+                }
                 Err(e) => {
                     result
                         .errors
                         .push(format!("Failed to read {}: {}", source_file, e));
-                },
+                }
             }
         }
     }
@@ -211,9 +203,7 @@ impl CrateDocsManager {
         }
 
         // Match macros: macro_rules! name or pub macro name (though latter is rare)
-        let macro_re =
-            Regex::new(r"(?m)^(?:#\[macro_export\]\s*\n)?macro_rules!\s+(\w+)")
-                .unwrap();
+        let macro_re = Regex::new(r"(?m)^(?:#\[macro_export\]\s*\n)?macro_rules!\s+(\w+)").unwrap();
         for cap in macro_re.captures_iter(content) {
             let name = cap[1].to_string();
             if !result.public_macros.contains(&name) {
@@ -266,9 +256,7 @@ impl CrateDocsManager {
                     change_type: "remove".to_string(),
                     item_kind: item_kind.to_string(),
                     item_name: name.clone(),
-                    description: Some(
-                        "Not found in analyzed source files".to_string(),
-                    ),
+                    description: Some("Not found in analyzed source files".to_string()),
                     source_file: String::new(),
                     line_number: None,
                 });
@@ -276,27 +264,19 @@ impl CrateDocsManager {
         }
     }
 
-    fn compare_crate_docs(
-        &self,
-        meta: &CrateMetadata,
-        result: &mut SyncAnalysisResult,
-    ) {
+    fn compare_crate_docs(&self, meta: &CrateMetadata, result: &mut SyncAnalysisResult) {
         // Get documented types
         let mut documented_types: Vec<String> = Vec::new();
         let mut documented_traits: Vec<String> = Vec::new();
         let mut documented_macros: Vec<String> = Vec::new();
 
         if let Some(exported) = &meta.exported_items {
-            documented_types
-                .extend(exported.types.iter().map(|t| t.name.clone()));
-            documented_traits
-                .extend(exported.traits.iter().map(|t| t.name.clone()));
-            documented_macros
-                .extend(exported.macros.iter().map(|t| t.name.clone()));
+            documented_types.extend(exported.types.iter().map(|t| t.name.clone()));
+            documented_traits.extend(exported.traits.iter().map(|t| t.name.clone()));
+            documented_macros.extend(exported.macros.iter().map(|t| t.name.clone()));
         }
 
-        let first_file =
-            result.files_analyzed.first().cloned().unwrap_or_default();
+        let first_file = result.files_analyzed.first().cloned().unwrap_or_default();
 
         // Find items in source but not documented
         Self::push_missing_doc_suggestions(
@@ -342,14 +322,9 @@ impl CrateDocsManager {
         );
     }
 
-    fn compare_module_docs(
-        &self,
-        meta: &ModuleMetadata,
-        result: &mut SyncAnalysisResult,
-    ) {
+    fn compare_module_docs(&self, meta: &ModuleMetadata, result: &mut SyncAnalysisResult) {
         // Get documented key_types
-        let documented_types: Vec<String> =
-            meta.key_types.iter().map(|t| t.name.clone()).collect();
+        let documented_types: Vec<String> = meta.key_types.iter().map(|t| t.name.clone()).collect();
 
         // Combine all public items from source
         let mut all_source_items: Vec<String> = Vec::new();
@@ -365,11 +340,7 @@ impl CrateDocsManager {
                     item_kind: "type".to_string(),
                     item_name: type_name.clone(),
                     description: None,
-                    source_file: result
-                        .files_analyzed
-                        .first()
-                        .cloned()
-                        .unwrap_or_default(),
+                    source_file: result.files_analyzed.first().cloned().unwrap_or_default(),
                     line_number: None,
                 });
             }
@@ -382,11 +353,7 @@ impl CrateDocsManager {
                     item_kind: "trait".to_string(),
                     item_name: trait_name.clone(),
                     description: None,
-                    source_file: result
-                        .files_analyzed
-                        .first()
-                        .cloned()
-                        .unwrap_or_default(),
+                    source_file: result.files_analyzed.first().cloned().unwrap_or_default(),
                     line_number: None,
                 });
             }
@@ -399,9 +366,7 @@ impl CrateDocsManager {
                     change_type: "remove".to_string(),
                     item_kind: "type".to_string(),
                     item_name: type_name.clone(),
-                    description: Some(
-                        "Not found in analyzed source files".to_string(),
-                    ),
+                    description: Some("Not found in analyzed source files".to_string()),
                     source_file: String::new(),
                     line_number: None,
                 });
@@ -409,44 +374,22 @@ impl CrateDocsManager {
         }
     }
 
-    fn update_last_synced(
-        &self,
-        index_path: &Path,
-        is_module: bool,
-    ) -> ToolResult<()> {
+    fn update_last_synced(&self, index_path: &Path, is_module: bool) -> ToolResult<()> {
         let content = fs::read_to_string(index_path)?;
         let timestamp = current_timestamp();
 
         let new_content = if is_module {
             let mut meta: ModuleMetadata = serde_yaml::from_str(&content)
-                .map_err(|e| {
-                    ToolError::InvalidInput(format!(
-                        "Failed to parse YAML: {}",
-                        e
-                    ))
-                })?;
+                .map_err(|e| ToolError::InvalidInput(format!("Failed to parse YAML: {}", e)))?;
             meta.last_synced = Some(timestamp);
-            serde_yaml::to_string(&meta).map_err(|e| {
-                ToolError::InvalidInput(format!(
-                    "Failed to serialize YAML: {}",
-                    e
-                ))
-            })?
+            serde_yaml::to_string(&meta)
+                .map_err(|e| ToolError::InvalidInput(format!("Failed to serialize YAML: {}", e)))?
         } else {
             let mut meta: CrateMetadata = serde_yaml::from_str(&content)
-                .map_err(|e| {
-                    ToolError::InvalidInput(format!(
-                        "Failed to parse YAML: {}",
-                        e
-                    ))
-                })?;
+                .map_err(|e| ToolError::InvalidInput(format!("Failed to parse YAML: {}", e)))?;
             meta.last_synced = Some(timestamp);
-            serde_yaml::to_string(&meta).map_err(|e| {
-                ToolError::InvalidInput(format!(
-                    "Failed to serialize YAML: {}",
-                    e
-                ))
-            })?
+            serde_yaml::to_string(&meta)
+                .map_err(|e| ToolError::InvalidInput(format!("Failed to serialize YAML: {}", e)))?
         };
 
         fs::write(index_path, new_content)?;

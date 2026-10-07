@@ -1,21 +1,10 @@
 use std::{
     fs,
-    path::{
-        Path,
-        PathBuf,
-    },
+    path::{Path, PathBuf},
 };
 
-use cargo_metadata::{
-    Metadata,
-    MetadataCommand,
-    Package,
-    Target,
-};
-use serde::{
-    Deserialize,
-    Serialize,
-};
+use cargo_metadata::{Metadata, MetadataCommand, Package, Target};
+use serde::{Deserialize, Serialize};
 
 use crate::error::DocError;
 
@@ -48,14 +37,12 @@ impl DocWorkspace {
     }
 
     pub fn from_cargo_metadata_json(json: &str) -> Result<Self, DocError> {
-        let metadata: Metadata = serde_json::from_str(json)
-            .map_err(|err| DocError::CargoMetadata(err.to_string()))?;
+        let metadata: Metadata =
+            serde_json::from_str(json).map_err(|err| DocError::CargoMetadata(err.to_string()))?;
         Self::from_cargo_metadata(metadata)
     }
 
-    pub fn from_cargo_metadata_file(
-        path: impl AsRef<Path>
-    ) -> Result<Self, DocError> {
+    pub fn from_cargo_metadata_file(path: impl AsRef<Path>) -> Result<Self, DocError> {
         let path = path.as_ref();
         let json = fs::read_to_string(path).map_err(|source| DocError::Io {
             path: path.to_path_buf(),
@@ -64,10 +51,7 @@ impl DocWorkspace {
         Self::from_cargo_metadata_json(&json)
     }
 
-    pub fn package(
-        &self,
-        name: &str,
-    ) -> Option<&DocPackage> {
+    pub fn package(&self, name: &str) -> Option<&DocPackage> {
         self.packages.iter().find(|package| package.name == name)
     }
 }
@@ -76,10 +60,8 @@ impl TryFrom<Metadata> for DocWorkspace {
     type Error = DocError;
 
     fn try_from(metadata: Metadata) -> Result<Self, Self::Error> {
-        let workspace_root =
-            metadata.workspace_root.clone().into_std_path_buf();
-        let target_directory =
-            metadata.target_directory.clone().into_std_path_buf();
+        let workspace_root = metadata.workspace_root.clone().into_std_path_buf();
+        let target_directory = metadata.target_directory.clone().into_std_path_buf();
         let workspace_manifest_path = workspace_root.join("Cargo.toml");
 
         let mut packages = metadata
@@ -136,9 +118,7 @@ impl TryFrom<&Package> for DocPackage {
         let package_root = manifest_path
             .parent()
             .map(Path::to_path_buf)
-            .ok_or_else(|| {
-                DocError::InvalidManifestPath(manifest_path.clone())
-            })?;
+            .ok_or_else(|| DocError::InvalidManifestPath(manifest_path.clone()))?;
 
         let mut targets = package
             .targets
@@ -192,11 +172,7 @@ impl From<&Target> for DocTarget {
         Self {
             name: target.name.clone(),
             kind: target.kind.iter().map(ToString::to_string).collect(),
-            crate_types: target
-                .crate_types
-                .iter()
-                .map(ToString::to_string)
-                .collect(),
+            crate_types: target.crate_types.iter().map(ToString::to_string).collect(),
             src_path: target.src_path.clone().into_std_path_buf(),
             edition: target.edition.to_string(),
             doc_capable: target.doc,
@@ -210,10 +186,7 @@ impl From<&Target> for DocTarget {
 mod tests {
     use std::{
         fs,
-        path::{
-            Path,
-            PathBuf,
-        },
+        path::{Path, PathBuf},
     };
 
     use cargo_metadata::MetadataCommand;
@@ -279,8 +252,7 @@ mod tests {
         fs::create_dir_all(metadata_path.parent().unwrap()).unwrap();
         fs::write(&metadata_path, json).unwrap();
 
-        let workspace =
-            DocWorkspace::from_cargo_metadata_file(&metadata_path).unwrap();
+        let workspace = DocWorkspace::from_cargo_metadata_file(&metadata_path).unwrap();
 
         assert_eq!(
             workspace.package("alpha-crate").unwrap().targets[0].edition,
@@ -346,10 +318,7 @@ description = "beta"
             .unwrap()
     }
 
-    fn write_file(
-        path: &Path,
-        contents: &str,
-    ) {
+    fn write_file(path: &Path, contents: &str) {
         if let Some(parent) = path.parent() {
             fs::create_dir_all(parent).unwrap();
         }

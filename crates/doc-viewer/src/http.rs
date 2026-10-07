@@ -2,68 +2,30 @@
 //!
 //! Provides REST API endpoints for browsing and reading documentation.
 
-use serde::{
-    Deserialize,
-    Serialize,
-};
+use serde::{Deserialize, Serialize};
 use serde_json::Value;
-use std::{
-    path::PathBuf,
-    sync::Arc,
-};
+use std::{path::PathBuf, sync::Arc};
 use viewer_api::{
     axum::{
-        extract::{
-            Path,
-            Query,
-            State,
-        },
-        http::{
-            HeaderMap,
-            StatusCode,
-        },
+        extract::{Path, Query, State},
+        http::{HeaderMap, StatusCode},
         response::Json,
-        routing::{
-            get,
-            post,
-        },
+        routing::{get, post},
         Router,
     },
-    session::{
-        get_session_id,
-        SessionConfig,
-        SessionConfigUpdate,
-        SessionStore,
-        SESSION_HEADER,
-    },
+    session::{get_session_id, SessionConfig, SessionConfigUpdate, SessionStore, SESSION_HEADER},
     tower_http::{
-        cors::{
-            Any,
-            CorsLayer,
-        },
+        cors::{Any, CorsLayer},
         services::ServeDir,
     },
     tracing::info,
 };
 
 use crate::{
-    helpers::{
-        normalize_path_str,
-        to_vscode_file_uri,
-        unix_path,
-    },
-    markdown_ast,
-    query,
-    schema::{
-        DocType,
-        ModuleTreeNode,
-    },
-    tools::{
-        CrateDocsManager,
-        DetailLevel,
-        DocsManager,
-        ListFilter,
-    },
+    helpers::{normalize_path_str, to_vscode_file_uri, unix_path},
+    markdown_ast, query,
+    schema::{DocType, ModuleTreeNode},
+    tools::{CrateDocsManager, DetailLevel, DocsManager, ListFilter},
 };
 
 /// Application state shared across HTTP handlers.
@@ -220,10 +182,7 @@ struct ReadCrateDocQuery {
 // === Router Creation ===
 
 /// Create the HTTP router with all API endpoints.
-pub fn create_router(
-    state: HttpState,
-    static_dir: Option<PathBuf>,
-) -> Router {
+pub fn create_router(state: HttpState, static_dir: Option<PathBuf>) -> Router {
     // CORS for development
     let cors = CorsLayer::new()
         .allow_origin(Any)
@@ -266,13 +225,14 @@ async fn list_docs(
     let doc_types = match params.doc_type.as_deref() {
         Some(dt) => match parse_doc_type(dt) {
             Some(t) => vec![t],
-            None =>
+            None => {
                 return Err((
                     StatusCode::BAD_REQUEST,
                     Json(ApiError {
                         error: format!("Invalid doc_type: {}", dt),
                     }),
-                )),
+                ))
+            }
         },
         None => vec![
             DocType::Guide,
@@ -313,14 +273,15 @@ async fn list_docs(
                         .collect(),
                 };
                 categories.push(category);
-            },
-            Err(e) =>
+            }
+            Err(e) => {
                 return Err((
                     StatusCode::INTERNAL_SERVER_ERROR,
                     Json(ApiError {
                         error: e.to_string(),
                     }),
-                )),
+                ))
+            }
         }
     }
 
@@ -353,7 +314,7 @@ async fn read_doc(
                 status: result.status.map(|s| s.to_string()),
                 body: result.body,
             }))
-        },
+        }
         Err(e) => {
             let status = if e.to_string().contains("not found") {
                 StatusCode::NOT_FOUND
@@ -366,13 +327,13 @@ async fn read_doc(
                     error: e.to_string(),
                 }),
             ))
-        },
+        }
     }
 }
 
 /// GET /api/crates - List all documented crates
 async fn list_crates(
-    State(state): State<HttpState>
+    State(state): State<HttpState>,
 ) -> Result<Json<CrateListResponse>, (StatusCode, Json<ApiError>)> {
     match state.crate_manager.discover_crates_with_diagnostics() {
         Ok(result) => {
@@ -391,7 +352,7 @@ async fn list_crates(
                     })
                     .collect(),
             }))
-        },
+        }
         Err(e) => Err((
             StatusCode::INTERNAL_SERVER_ERROR,
             Json(ApiError {
@@ -429,7 +390,7 @@ async fn browse_crate(
                 source_files: root_source_files,
                 crate_path,
             }))
-        },
+        }
         Err(e) => {
             let status = if e.to_string().contains("not found") {
                 StatusCode::NOT_FOUND
@@ -442,7 +403,7 @@ async fn browse_crate(
                     error: e.to_string(),
                 }),
             ))
-        },
+        }
     }
 }
 
@@ -454,11 +415,10 @@ async fn read_crate_doc(
 ) -> Result<Json<CrateDocResponse>, (StatusCode, Json<ApiError>)> {
     let include_readme = params.include_readme.unwrap_or(true);
 
-    match state.crate_manager.read_crate_doc(
-        &name,
-        params.module.as_deref(),
-        include_readme,
-    ) {
+    match state
+        .crate_manager
+        .read_crate_doc(&name, params.module.as_deref(), include_readme)
+    {
         Ok(result) => {
             info!(crate_name = %name, module = ?params.module, "Read crate doc");
             Ok(Json(CrateDocResponse {
@@ -477,7 +437,7 @@ async fn read_crate_doc(
                     })
                     .collect(),
             }))
-        },
+        }
         Err(e) => {
             let status = if e.to_string().contains("not found") {
                 StatusCode::NOT_FOUND
@@ -490,14 +450,11 @@ async fn read_crate_doc(
                     error: e.to_string(),
                 }),
             ))
-        },
+        }
     }
 }
 
-fn convert_module_node(
-    node: &ModuleTreeNode,
-    crate_path: &str,
-) -> ModuleNodeResponse {
+fn convert_module_node(node: &ModuleTreeNode, crate_path: &str) -> ModuleNodeResponse {
     // Scan source files for this module (src/module_name/ and agents/docs/module_path/)
     let source_files = scan_crate_source_files(crate_path, Some(&node.path));
 
@@ -530,26 +487,21 @@ fn scan_crate_source_files(
         None => {
             // Root level: scan src/ root files and agents/docs/ index.yaml
             (crate_dir.join("src"), crate_dir.join("agents").join("docs"))
-        },
+        }
         Some(mod_path) => {
             // Module level: scan src/module_path/ and agents/docs/module_path/
             (
                 crate_dir.join("src").join(mod_path),
                 crate_dir.join("agents").join("docs").join(mod_path),
             )
-        },
+        }
     };
 
     // Scan src/ directory for .rs files (only direct children, not recursive)
     scan_dir_by_extension(&src_dir, crate_dir, &["rs"], &mut files);
 
     // Scan agents/docs/ directory for .yaml and .md files
-    scan_dir_by_extension(
-        &docs_dir,
-        crate_dir,
-        &["yaml", "yml", "md"],
-        &mut files,
-    );
+    scan_dir_by_extension(&docs_dir, crate_dir, &["yaml", "yml", "md"], &mut files);
 
     // Sort files by name
     files.sort_by(|a, b| a.rel_path.cmp(&b.rel_path));
@@ -600,8 +552,7 @@ fn parse_doc_type(s: &str) -> Option<DocType> {
         "guide" | "guides" => Some(DocType::Guide),
         "plan" | "plans" => Some(DocType::Plan),
         "implemented" => Some(DocType::Implemented),
-        "bug-report" | "bug-reports" | "bug_report" | "bugreport" =>
-            Some(DocType::BugReport),
+        "bug-report" | "bug-reports" | "bug_report" | "bugreport" => Some(DocType::BugReport),
         "analysis" => Some(DocType::Analysis),
         _ => None,
     }
@@ -622,13 +573,14 @@ async fn query_docs(
     let doc_types = match params.doc_type.as_deref() {
         Some(dt) => match parse_doc_type(dt) {
             Some(t) => vec![t],
-            None =>
+            None => {
                 return Err((
                     StatusCode::BAD_REQUEST,
                     Json(ApiError {
                         error: format!("Invalid doc_type: {}", dt),
                     }),
-                )),
+                ))
+            }
         },
         None => vec![
             DocType::Guide,
@@ -644,20 +596,15 @@ async fn query_docs(
 
     for dt in doc_types {
         match state.docs_manager.list_documents_filtered(dt, &filter) {
-            Ok(docs) => collect_query_docs(
-                &state,
-                dt,
-                docs,
-                params.include_content,
-                &mut all_docs,
-            ),
-            Err(e) =>
+            Ok(docs) => collect_query_docs(&state, dt, docs, params.include_content, &mut all_docs),
+            Err(e) => {
                 return Err((
                     StatusCode::INTERNAL_SERVER_ERROR,
                     Json(ApiError {
                         error: e.to_string(),
                     }),
-                )),
+                ))
+            }
         }
     }
 
@@ -676,7 +623,7 @@ async fn query_docs(
                 total: values.len(),
                 results: values,
             }))
-        },
+        }
         Err(e) => Err((
             StatusCode::BAD_REQUEST,
             Json(ApiError {
@@ -717,10 +664,7 @@ fn collect_query_docs(
 }
 
 /// Read a document body and parse it into a markdown-AST JSON value.
-fn read_doc_content_ast(
-    state: &HttpState,
-    filename: &str,
-) -> Option<Value> {
+fn read_doc_content_ast(state: &HttpState, filename: &str) -> Option<Value> {
     let result = state
         .docs_manager
         .read_document(filename, DetailLevel::Full)
@@ -742,9 +686,10 @@ async fn get_doc_ast(
         .read_document(&filename, DetailLevel::Full)
     {
         Ok(result) => {
-            let content_ast = result.body.as_ref().and_then(|body| {
-                markdown_ast::parse_markdown_to_json(body).ok()
-            });
+            let content_ast = result
+                .body
+                .as_ref()
+                .and_then(|body| markdown_ast::parse_markdown_to_json(body).ok());
 
             info!(filename = %filename, "Get doc AST");
             Ok(Json(serde_json::json!({
@@ -757,7 +702,7 @@ async fn get_doc_ast(
                 "status": result.status.map(|s| s.to_string()),
                 "content": content_ast,
             })))
-        },
+        }
         Err(e) => {
             let status = if e.to_string().contains("not found") {
                 StatusCode::NOT_FOUND
@@ -770,7 +715,7 @@ async fn get_doc_ast(
                     error: e.to_string(),
                 }),
             ))
-        },
+        }
     }
 }
 
@@ -884,8 +829,7 @@ async fn read_source_file(
         return Err((
             StatusCode::FORBIDDEN,
             Json(ApiError {
-                error: "Access denied: path outside allowed directories"
-                    .to_string(),
+                error: "Access denied: path outside allowed directories".to_string(),
             }),
         ));
     }

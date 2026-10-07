@@ -1,9 +1,6 @@
 use std::path::PathBuf;
 
-use serde::{
-    Deserialize,
-    Serialize,
-};
+use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "kebab-case")]
@@ -43,26 +40,17 @@ pub struct DocEvidenceLinks {
 }
 
 impl DocEvidenceLinks {
-    pub fn links_to_spec(
-        &self,
-        spec_id: &str,
-    ) -> bool {
+    pub fn links_to_spec(&self, spec_id: &str) -> bool {
         self.spec_ids.iter().any(|id| id == spec_id)
     }
 
-    pub fn links_to_acceptance(
-        &self,
-        acceptance_criterion_id: &str,
-    ) -> bool {
+    pub fn links_to_acceptance(&self, acceptance_criterion_id: &str) -> bool {
         self.acceptance_criterion_ids
             .iter()
             .any(|id| id == acceptance_criterion_id)
     }
 
-    pub fn links_to_ticket(
-        &self,
-        ticket_id: &str,
-    ) -> bool {
+    pub fn links_to_ticket(&self, ticket_id: &str) -> bool {
         self.ticket_ids.iter().any(|id| id == ticket_id)
     }
 }
@@ -110,20 +98,12 @@ impl DocEvidenceRecord {
         self.status.is_blocking()
     }
 
-    pub fn satisfies_acceptance(
-        &self,
-        acceptance_criterion_id: &str,
-    ) -> bool {
-        self.is_satisfied()
-            && self.links.links_to_acceptance(acceptance_criterion_id)
+    pub fn satisfies_acceptance(&self, acceptance_criterion_id: &str) -> bool {
+        self.is_satisfied() && self.links.links_to_acceptance(acceptance_criterion_id)
     }
 
-    pub fn blocks_acceptance(
-        &self,
-        acceptance_criterion_id: &str,
-    ) -> bool {
-        self.is_blocking()
-            && self.links.links_to_acceptance(acceptance_criterion_id)
+    pub fn blocks_acceptance(&self, acceptance_criterion_id: &str) -> bool {
+        self.is_blocking() && self.links.links_to_acceptance(acceptance_criterion_id)
     }
 }
 
@@ -131,12 +111,7 @@ impl DocEvidenceRecord {
 mod tests {
     use pretty_assertions::assert_eq;
 
-    use super::{
-        DocEvidenceKind,
-        DocEvidenceLinks,
-        DocEvidenceRecord,
-        DocEvidenceStatus,
-    };
+    use super::{DocEvidenceKind, DocEvidenceLinks, DocEvidenceRecord, DocEvidenceStatus};
 
     #[test]
     fn serde_round_trips_supported_evidence_record_kinds() {
@@ -151,9 +126,7 @@ mod tests {
                 related_rule_ids: vec!["rule-generated-guidance".to_string()],
                 links: DocEvidenceLinks {
                     spec_ids: vec!["spec-docs".to_string()],
-                    acceptance_criterion_ids: vec![
-                        "criterion-docs".to_string(),
-                    ],
+                    acceptance_criterion_ids: vec!["criterion-docs".to_string()],
                     ticket_ids: vec!["ticket-docs".to_string()],
                 },
             },
@@ -178,8 +151,7 @@ mod tests {
         ];
 
         let json = serde_json::to_string_pretty(&records).unwrap();
-        let reparsed: Vec<DocEvidenceRecord> =
-            serde_json::from_str(&json).unwrap();
+        let reparsed: Vec<DocEvidenceRecord> = serde_json::from_str(&json).unwrap();
 
         assert_eq!(reparsed, records);
         assert!(json.contains("authored-doc-check"));
@@ -226,9 +198,7 @@ mod tests {
             title: "Manual verification".to_string(),
             kind: DocEvidenceKind::ManualVerificationStep,
             status: DocEvidenceStatus::Satisfied,
-            detail: Some(
-                "Reviewer confirmed coverage in generated README".to_string(),
-            ),
+            detail: Some("Reviewer confirmed coverage in generated README".to_string()),
             document_paths: vec!["README.md".into()],
             related_rule_ids: Vec::new(),
             links: DocEvidenceLinks {

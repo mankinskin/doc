@@ -16,35 +16,15 @@ mod inputs;
 pub use inputs::*;
 
 use rmcp::{
-    handler::server::{
-        tool::ToolRouter,
-        wrapper::Parameters,
-    },
+    handler::server::{tool::ToolRouter, wrapper::Parameters},
     model::*,
-    tool,
-    tool_handler,
-    tool_router,
-    ErrorData as McpError,
-    ServerHandler,
+    tool, tool_handler, tool_router, ErrorData as McpError, ServerHandler,
 };
-use std::{
-    path::PathBuf,
-    sync::Arc,
-};
+use std::{path::PathBuf, sync::Arc};
 
 use crate::{
-    helpers::{
-        format_module_tree,
-        parse_detail_level,
-        parse_doc_type,
-        parse_status,
-    },
-    tools::{
-        self,
-        agents::CreateDocParams,
-        CrateDocsManager,
-        DocsManager,
-    },
+    helpers::{format_module_tree, parse_detail_level, parse_doc_type, parse_status},
+    tools::{self, agents::CreateDocParams, CrateDocsManager, DocsManager},
 };
 
 /// Convert a markdown-producing tool result into a `CallToolResult`,
@@ -52,8 +32,7 @@ use crate::{
 fn markdown_or_error(result: tools::ToolResult<String>) -> CallToolResult {
     match result {
         Ok(md) => CallToolResult::success(vec![Content::text(md)]),
-        Err(e) =>
-            CallToolResult::error(vec![Content::text(format!("Error: {}", e))]),
+        Err(e) => CallToolResult::error(vec![Content::text(format!("Error: {}", e))]),
     }
 }
 
@@ -66,10 +45,7 @@ pub struct DocsServer {
 }
 
 impl DocsServer {
-    pub fn new(
-        agents_dir: PathBuf,
-        crates_dirs: Vec<PathBuf>,
-    ) -> Self {
+    pub fn new(agents_dir: PathBuf, crates_dirs: Vec<PathBuf>) -> Self {
         Self {
             manager: Arc::new(DocsManager::new(agents_dir)),
             crate_manager: Arc::new(CrateDocsManager::new(crates_dirs)),
@@ -114,21 +90,18 @@ For crates:
         }
     }
 
-    async fn list_agent_docs(
-        &self,
-        input: ListInput,
-    ) -> Result<CallToolResult, McpError> {
+    async fn list_agent_docs(&self, input: ListInput) -> Result<CallToolResult, McpError> {
         // Read specific document
         if let Some(filename) = input.filename {
             let detail = parse_detail_level(&input.detail);
             match self.manager.read_document(&filename, detail) {
-                Ok(content) =>
-                    Ok(CallToolResult::success(vec![Content::text(
-                        content.to_markdown(),
-                    )])),
-                Err(e) => Ok(CallToolResult::error(vec![Content::text(
-                    format!("Error: {}", e),
+                Ok(content) => Ok(CallToolResult::success(vec![Content::text(
+                    content.to_markdown(),
                 )])),
+                Err(e) => Ok(CallToolResult::error(vec![Content::text(format!(
+                    "Error: {}",
+                    e
+                ))])),
             }
         }
         // Browse with optional filters (when no doc_type filter is set, shows all categories)
@@ -141,23 +114,20 @@ For crates:
                 Ok(result) => Ok(CallToolResult::success(vec![Content::text(
                     result.to_markdown(),
                 )])),
-                Err(e) => Ok(CallToolResult::error(vec![Content::text(
-                    format!("Error: {}", e),
-                )])),
+                Err(e) => Ok(CallToolResult::error(vec![Content::text(format!(
+                    "Error: {}",
+                    e
+                ))])),
             }
         }
         // List filtered documents of a specific type
         else {
-            let doc_type = parse_doc_type(input.doc_type.as_ref().unwrap())
-                .ok_or_else(|| {
-                    McpError::invalid_params(
-                        format!(
-                            "Invalid doc_type: {}",
-                            input.doc_type.as_ref().unwrap()
-                        ),
-                        None,
-                    )
-                })?;
+            let doc_type = parse_doc_type(input.doc_type.as_ref().unwrap()).ok_or_else(|| {
+                McpError::invalid_params(
+                    format!("Invalid doc_type: {}", input.doc_type.as_ref().unwrap()),
+                    None,
+                )
+            })?;
             let filter = tools::ListFilter {
                 tag: input.tag,
                 status: input.status.as_ref().and_then(|s| parse_status(s)),
@@ -165,18 +135,12 @@ For crates:
 
             match self.manager.list_documents_filtered(doc_type, &filter) {
                 Ok(docs) => {
-                    let mut md = format!(
-                        "# {} Documents\n\n",
-                        input.doc_type.as_ref().unwrap()
-                    );
+                    let mut md = format!("# {} Documents\n\n", input.doc_type.as_ref().unwrap());
 
                     if docs.is_empty() {
                         md.push_str("No documents found.\n");
                     } else {
-                        md.push_str(&format!(
-                            "**{} documents found**\n\n",
-                            docs.len()
-                        ));
+                        md.push_str(&format!("**{} documents found**\n\n", docs.len()));
                         md.push_str("| Filename | Summary | Tags |\n");
                         md.push_str("|----------|---------|------|\n");
                         for doc in &docs {
@@ -189,23 +153,18 @@ For crates:
                     }
 
                     Ok(CallToolResult::success(vec![Content::text(md)]))
-                },
-                Err(e) => Ok(CallToolResult::error(vec![Content::text(
-                    format!("Error: {}", e),
-                )])),
+                }
+                Err(e) => Ok(CallToolResult::error(vec![Content::text(format!(
+                    "Error: {}",
+                    e
+                ))])),
             }
         }
     }
 
-    async fn list_crate_docs(
-        &self,
-        input: ListInput,
-    ) -> Result<CallToolResult, McpError> {
+    async fn list_crate_docs(&self, input: ListInput) -> Result<CallToolResult, McpError> {
         let crate_name = input.crate_name.ok_or_else(|| {
-            McpError::invalid_params(
-                "crate_name required for crate_docs target",
-                None,
-            )
+            McpError::invalid_params("crate_name required for crate_docs target", None)
         })?;
 
         // Read specific module or crate root
@@ -218,9 +177,10 @@ For crates:
                 Ok(doc) => Ok(CallToolResult::success(vec![Content::text(
                     doc.to_markdown(),
                 )])),
-                Err(e) => Ok(CallToolResult::error(vec![Content::text(
-                    format!("Error: {}", e),
-                )])),
+                Err(e) => Ok(CallToolResult::error(vec![Content::text(format!(
+                    "Error: {}",
+                    e
+                ))])),
             }
         }
         // Browse crate module tree
@@ -229,10 +189,11 @@ For crates:
                 Ok(tree) => {
                     let md = format_module_tree(&tree, 0);
                     Ok(CallToolResult::success(vec![Content::text(md)]))
-                },
-                Err(e) => Ok(CallToolResult::error(vec![Content::text(
-                    format!("Error: {}", e),
-                )])),
+                }
+                Err(e) => Ok(CallToolResult::error(vec![Content::text(format!(
+                    "Error: {}",
+                    e
+                ))])),
             }
         }
     }
@@ -244,9 +205,7 @@ For crates:
 
                 // Show directory info
                 md.push_str("**Crates Directories:**\n");
-                for (dir, exists) in
-                    result.crates_dirs.iter().zip(result.dirs_exist.iter())
-                {
+                for (dir, exists) in result.crates_dirs.iter().zip(result.dirs_exist.iter()) {
                     let status = if *exists { "✅" } else { "❌" };
                     md.push_str(&format!("- `{}` {}\n", dir, status));
                 }
@@ -266,11 +225,7 @@ For crates:
                         let readme = if c.has_readme { "✅" } else { "❌" };
                         md.push_str(&format!(
                             "| {} | {} | {} | {} | {} |\n",
-                            c.name,
-                            version,
-                            c.module_count,
-                            readme,
-                            c.description
+                            c.name, version, c.module_count, readme, c.description
                         ));
                     }
                 }
@@ -283,7 +238,7 @@ For crates:
                 }
 
                 Ok(CallToolResult::success(vec![Content::text(md)]))
-            },
+            }
             Err(e) => Ok(CallToolResult::error(vec![Content::text(format!(
                 "Error: {}",
                 e
@@ -318,10 +273,7 @@ Search options:
         }
     }
 
-    async fn search_agent_docs(
-        &self,
-        input: SearchInput,
-    ) -> Result<CallToolResult, McpError> {
+    async fn search_agent_docs(&self, input: SearchInput) -> Result<CallToolResult, McpError> {
         let doc_type = input.doc_type.as_ref().and_then(|s| parse_doc_type(s));
         let filter = tools::ListFilter {
             tag: input.tag.clone(),
@@ -337,13 +289,13 @@ Search options:
                 input.lines_before,
                 input.lines_after,
             ) {
-                Ok(results) =>
-                    Ok(CallToolResult::success(vec![Content::text(
-                        results.to_markdown(),
-                    )])),
-                Err(e) => Ok(CallToolResult::error(vec![Content::text(
-                    format!("Error: {}", e),
+                Ok(results) => Ok(CallToolResult::success(vec![Content::text(
+                    results.to_markdown(),
                 )])),
+                Err(e) => Ok(CallToolResult::error(vec![Content::text(format!(
+                    "Error: {}",
+                    e
+                ))])),
             }
         } else {
             // Search metadata
@@ -354,12 +306,8 @@ Search options:
                 doc_type,
             ) {
                 Ok(results) => {
-                    let mut md =
-                        format!("# Search Results: \"{}\"\n\n", input.query);
-                    md.push_str(&format!(
-                        "**{} matches found**\n\n",
-                        results.len()
-                    ));
+                    let mut md = format!("# Search Results: \"{}\"\n\n", input.query);
+                    md.push_str(&format!("**{} matches found**\n\n", results.len()));
 
                     if results.is_empty() {
                         md.push_str("No matches found.\n");
@@ -376,18 +324,16 @@ Search options:
                     }
 
                     Ok(CallToolResult::success(vec![Content::text(md)]))
-                },
-                Err(e) => Ok(CallToolResult::error(vec![Content::text(
-                    format!("Error: {}", e),
-                )])),
+                }
+                Err(e) => Ok(CallToolResult::error(vec![Content::text(format!(
+                    "Error: {}",
+                    e
+                ))])),
             }
         }
     }
 
-    async fn search_crate_docs(
-        &self,
-        input: SearchInput,
-    ) -> Result<CallToolResult, McpError> {
+    async fn search_crate_docs(&self, input: SearchInput) -> Result<CallToolResult, McpError> {
         match self.crate_manager.search_crate_docs(
             &input.query,
             input.crate_filter.as_deref(),
@@ -395,22 +341,14 @@ Search options:
             input.search_readme,
         ) {
             Ok(results) => {
-                let mut md =
-                    format!("# Search Results: \"{}\"\n\n", input.query);
-                md.push_str(&format!(
-                    "**{} matches found**\n\n",
-                    results.len()
-                ));
+                let mut md = format!("# Search Results: \"{}\"\n\n", input.query);
+                md.push_str(&format!("**{} matches found**\n\n", results.len()));
 
                 if results.is_empty() {
                     md.push_str("No matches found.\n");
                 } else {
-                    md.push_str(
-                        "| Crate | Module | Type | Name | Description |\n",
-                    );
-                    md.push_str(
-                        "|-------|--------|------|------|-------------|\n",
-                    );
+                    md.push_str("| Crate | Module | Type | Name | Description |\n");
+                    md.push_str("|-------|--------|------|------|-------------|\n");
                     for r in &results {
                         let module = if r.module_path.is_empty() {
                             "-"
@@ -430,7 +368,7 @@ Search options:
                 }
 
                 Ok(CallToolResult::success(vec![Content::text(md)]))
-            },
+            }
             Err(e) => Ok(CallToolResult::error(vec![Content::text(format!(
                 "Error: {}",
                 e
@@ -438,10 +376,7 @@ Search options:
         }
     }
 
-    async fn search_all(
-        &self,
-        input: SearchInput,
-    ) -> Result<CallToolResult, McpError> {
+    async fn search_all(&self, input: SearchInput) -> Result<CallToolResult, McpError> {
         let mut md = format!("# Search Results: \"{}\"\n\n", input.query);
 
         // Search agent docs
@@ -456,11 +391,7 @@ Search options:
     }
 
     /// Append agent-documentation search results to `md`.
-    fn append_agent_doc_search(
-        &self,
-        input: &SearchInput,
-        md: &mut String,
-    ) {
+    fn append_agent_doc_search(&self, input: &SearchInput, md: &mut String) {
         let doc_type = input.doc_type.as_ref().and_then(|s| parse_doc_type(s));
         let filter = tools::ListFilter {
             tag: input.tag.clone(),
@@ -480,62 +411,46 @@ Search options:
                     let content = results.to_markdown();
                     let lines: Vec<&str> = content.lines().skip(2).collect();
                     md.push_str(&lines.join("\n"));
-                },
-                Err(e) =>
-                    md.push_str(&format!("Error searching agent docs: {}\n", e)),
+                }
+                Err(e) => md.push_str(&format!("Error searching agent docs: {}\n", e)),
             }
             return;
         }
 
-        match self.manager.search_docs(
-            Some(&input.query),
-            input.tag.as_deref(),
-            false,
-            doc_type,
-        ) {
-            Ok(results) =>
+        match self
+            .manager
+            .search_docs(Some(&input.query), input.tag.as_deref(), false, doc_type)
+        {
+            Ok(results) => {
                 if results.is_empty() {
                     md.push_str("No matches found.\n");
                 } else {
-                    md.push_str(&format!(
-                        "**{} matches found**\n\n",
-                        results.len()
-                    ));
+                    md.push_str(&format!("**{} matches found**\n\n", results.len()));
                     md.push_str("| File | Summary | Tags |\n");
                     md.push_str("|------|---------|------|\n");
                     for r in &results {
                         let tags = r.tags.join(", ");
-                        md.push_str(&format!(
-                            "| {} | {} | {} |\n",
-                            r.filename, r.summary, tags
-                        ));
+                        md.push_str(&format!("| {} | {} | {} |\n", r.filename, r.summary, tags));
                     }
-                },
-            Err(e) =>
-                md.push_str(&format!("Error searching agent docs: {}\n", e)),
+                }
+            }
+            Err(e) => md.push_str(&format!("Error searching agent docs: {}\n", e)),
         }
     }
 
     /// Append crate-documentation search results to `md`.
-    fn append_crate_doc_search(
-        &self,
-        input: &SearchInput,
-        md: &mut String,
-    ) {
+    fn append_crate_doc_search(&self, input: &SearchInput, md: &mut String) {
         match self.crate_manager.search_crate_docs(
             &input.query,
             input.crate_filter.as_deref(),
             input.search_types,
             input.search_readme,
         ) {
-            Ok(results) =>
+            Ok(results) => {
                 if results.is_empty() {
                     md.push_str("No matches found.\n");
                 } else {
-                    md.push_str(&format!(
-                        "**{} matches found**\n\n",
-                        results.len()
-                    ));
+                    md.push_str(&format!("**{} matches found**\n\n", results.len()));
                     md.push_str("| Crate | Module | Type | Name |\n");
                     md.push_str("|-------|--------|------|------|\n");
                     for r in &results {
@@ -549,7 +464,8 @@ Search options:
                             r.crate_name, module, r.match_type, r.name
                         ));
                     }
-                },
+                }
+            }
             Err(e) => md.push_str(&format!("Error: {}\n", e)),
         }
     }
@@ -580,17 +496,13 @@ Actions:
     ) -> Result<CallToolResult, McpError> {
         match input.target {
             ValidateTarget::AgentDocs => self.validate_agent_docs(&input),
-            ValidateTarget::CrateDocs =>
-                self.validate_crate_docs_target(&input),
+            ValidateTarget::CrateDocs => self.validate_crate_docs_target(&input),
             ValidateTarget::All => self.validate_all_target(&input),
         }
     }
 
     /// Handle `validate` actions scoped to agent documentation.
-    fn validate_agent_docs(
-        &self,
-        input: &ValidateInput,
-    ) -> Result<CallToolResult, McpError> {
+    fn validate_agent_docs(&self, input: &ValidateInput) -> Result<CallToolResult, McpError> {
         match input.action {
             ValidateAction::Validate => Ok(markdown_or_error(
                 self.manager.validate().map(|r| r.to_markdown()),
@@ -602,59 +514,43 @@ Actions:
             )),
             ValidateAction::RegenerateIndex => self.regenerate_index_action(input),
             ValidateAction::AddFrontmatter => self.add_frontmatter_action(input),
-            ValidateAction::ReviewNeeded => {
-                Ok(match self.manager.get_docs_needing_review(input.max_age_days) {
+            ValidateAction::ReviewNeeded => Ok(
+                match self.manager.get_docs_needing_review(input.max_age_days) {
                     Ok(docs) => {
-                        let json =
-                            serde_json::to_string_pretty(&docs).unwrap_or_default();
+                        let json = serde_json::to_string_pretty(&docs).unwrap_or_default();
                         CallToolResult::success(vec![Content::text(json)])
-                    },
-                    Err(e) => CallToolResult::error(vec![Content::text(format!(
-                        "Error: {}",
-                        e
-                    ))]),
-                })
-            },
+                    }
+                    Err(e) => CallToolResult::error(vec![Content::text(format!("Error: {}", e))]),
+                },
+            ),
             ValidateAction::CheckStale | ValidateAction::Sync => {
                 Ok(CallToolResult::error(vec![Content::text(
                     "check_stale and sync actions are only valid for crate_docs target",
                 )]))
-            },
+            }
         }
     }
 
     /// Regenerate an agent-docs INDEX for the requested doc type.
-    fn regenerate_index_action(
-        &self,
-        input: &ValidateInput,
-    ) -> Result<CallToolResult, McpError> {
+    fn regenerate_index_action(&self, input: &ValidateInput) -> Result<CallToolResult, McpError> {
         let doc_type = input
             .doc_type
             .as_ref()
             .and_then(|s| parse_doc_type(s))
             .ok_or_else(|| {
-                McpError::invalid_params(
-                    "doc_type required for regenerate_index",
-                    None,
-                )
+                McpError::invalid_params("doc_type required for regenerate_index", None)
             })?;
         Ok(match self.manager.update_index(doc_type) {
             Ok(path) => CallToolResult::success(vec![Content::text(format!(
                 "Regenerated INDEX at: {}",
                 path
             ))]),
-            Err(e) => CallToolResult::error(vec![Content::text(format!(
-                "Error: {}",
-                e
-            ))]),
+            Err(e) => CallToolResult::error(vec![Content::text(format!("Error: {}", e))]),
         })
     }
 
     /// Add frontmatter to agent docs missing it for the requested doc type.
-    fn add_frontmatter_action(
-        &self,
-        input: &ValidateInput,
-    ) -> Result<CallToolResult, McpError> {
+    fn add_frontmatter_action(&self, input: &ValidateInput) -> Result<CallToolResult, McpError> {
         let doc_type = match input.doc_type.as_deref() {
             None | Some("all") => None,
             Some(dt_str) => match parse_doc_type(dt_str) {
@@ -721,10 +617,7 @@ Actions:
     }
 
     /// Handle `validate` actions scoped to all documentation targets.
-    fn validate_all_target(
-        &self,
-        input: &ValidateInput,
-    ) -> Result<CallToolResult, McpError> {
+    fn validate_all_target(&self, input: &ValidateInput) -> Result<CallToolResult, McpError> {
         match input.action {
             ValidateAction::Validate => {
                 let mut md = String::from("# Validation Report\n\n");
@@ -742,7 +635,7 @@ Actions:
                 }
 
                 Ok(CallToolResult::success(vec![Content::text(md)]))
-            },
+            }
             ValidateAction::Health => {
                 let mut md = String::from("# Health Dashboard\n\n");
 
@@ -760,16 +653,13 @@ Actions:
                             "**{} crates checked, {} modules checked**\n",
                             report.crates_checked, report.modules_checked
                         ));
-                        md.push_str(&format!(
-                            "**Issues found:** {}\n",
-                            report.issues.len()
-                        ));
-                    },
+                        md.push_str(&format!("**Issues found:** {}\n", report.issues.len()));
+                    }
                     Err(e) => md.push_str(&format!("Error: {}\n", e)),
                 }
 
                 Ok(CallToolResult::success(vec![Content::text(md)]))
-            },
+            }
             _ => Ok(CallToolResult::error(vec![Content::text(
                 "Only validate and health actions are supported for 'all' target",
             )])),
@@ -795,42 +685,24 @@ Targets:
     ) -> Result<CallToolResult, McpError> {
         match input.target {
             CreateTarget::AgentDoc => {
-                let doc_type_str =
-                    input.doc_type.as_ref().ok_or_else(|| {
-                        McpError::invalid_params(
-                            "doc_type required for agent_doc",
-                            None,
-                        )
-                    })?;
-                let doc_type =
-                    parse_doc_type(doc_type_str).ok_or_else(|| {
-                        McpError::invalid_params(
-                            format!("Invalid doc_type: {}", doc_type_str),
-                            None,
-                        )
-                    })?;
-
-                let name = input.name.ok_or_else(|| {
-                    McpError::invalid_params(
-                        "name required for agent_doc",
-                        None,
-                    )
+                let doc_type_str = input.doc_type.as_ref().ok_or_else(|| {
+                    McpError::invalid_params("doc_type required for agent_doc", None)
                 })?;
+                let doc_type = parse_doc_type(doc_type_str).ok_or_else(|| {
+                    McpError::invalid_params(format!("Invalid doc_type: {}", doc_type_str), None)
+                })?;
+
+                let name = input
+                    .name
+                    .ok_or_else(|| McpError::invalid_params("name required for agent_doc", None))?;
                 let title = input.title.ok_or_else(|| {
-                    McpError::invalid_params(
-                        "title required for agent_doc",
-                        None,
-                    )
+                    McpError::invalid_params("title required for agent_doc", None)
                 })?;
                 let summary = input.summary.ok_or_else(|| {
-                    McpError::invalid_params(
-                        "summary required for agent_doc",
-                        None,
-                    )
+                    McpError::invalid_params("summary required for agent_doc", None)
                 })?;
 
-                let status =
-                    input.status.as_ref().and_then(|s| parse_status(s));
+                let status = input.status.as_ref().and_then(|s| parse_status(s));
 
                 let params = CreateDocParams {
                     doc_type,
@@ -842,42 +714,28 @@ Targets:
                 };
 
                 match self.manager.create_document(params) {
-                    Ok(result) =>
-                        Ok(CallToolResult::success(vec![Content::text(
-                            format!(
-                                "Created: {}\nPath: {}",
-                                result.filename, result.path
-                            ),
-                        )])),
-                    Err(e) => Ok(CallToolResult::error(vec![Content::text(
-                        format!("Error: {}", e),
-                    )])),
+                    Ok(result) => Ok(CallToolResult::success(vec![Content::text(format!(
+                        "Created: {}\nPath: {}",
+                        result.filename, result.path
+                    ))])),
+                    Err(e) => Ok(CallToolResult::error(vec![Content::text(format!(
+                        "Error: {}",
+                        e
+                    ))])),
                 }
-            },
+            }
             CreateTarget::CrateModule => {
                 let crate_name = input.crate_name.ok_or_else(|| {
-                    McpError::invalid_params(
-                        "crate_name required for crate_module",
-                        None,
-                    )
+                    McpError::invalid_params("crate_name required for crate_module", None)
                 })?;
                 let module_path = input.module_path.ok_or_else(|| {
-                    McpError::invalid_params(
-                        "module_path required for crate_module",
-                        None,
-                    )
+                    McpError::invalid_params("module_path required for crate_module", None)
                 })?;
                 let name = input.name.ok_or_else(|| {
-                    McpError::invalid_params(
-                        "name required for crate_module",
-                        None,
-                    )
+                    McpError::invalid_params("name required for crate_module", None)
                 })?;
                 let description = input.description.ok_or_else(|| {
-                    McpError::invalid_params(
-                        "description required for crate_module",
-                        None,
-                    )
+                    McpError::invalid_params("description required for crate_module", None)
                 })?;
 
                 match self.crate_manager.create_module_doc(
@@ -886,18 +744,16 @@ Targets:
                     &name,
                     &description,
                 ) {
-                    Ok(path) =>
-                        Ok(CallToolResult::success(vec![Content::text(
-                            format!(
-                                "Created module documentation at: {}",
-                                path
-                            ),
-                        )])),
-                    Err(e) => Ok(CallToolResult::error(vec![Content::text(
-                        format!("Error: {}", e),
-                    )])),
+                    Ok(path) => Ok(CallToolResult::success(vec![Content::text(format!(
+                        "Created module documentation at: {}",
+                        path
+                    ))])),
+                    Err(e) => Ok(CallToolResult::error(vec![Content::text(format!(
+                        "Error: {}",
+                        e
+                    ))])),
                 }
-            },
+            }
         }
     }
 
@@ -925,10 +781,7 @@ Targets:
         match input.target {
             UpdateTarget::AgentDoc => {
                 let filename = input.filename.ok_or_else(|| {
-                    McpError::invalid_params(
-                        "filename required for agent_doc",
-                        None,
-                    )
+                    McpError::invalid_params("filename required for agent_doc", None)
                 })?;
 
                 let params = tools::agents::UpdateMetaParams {
@@ -939,20 +792,19 @@ Targets:
                 };
 
                 match self.manager.update_document_metadata(params) {
-                    Ok(()) => Ok(CallToolResult::success(vec![Content::text(
-                        format!("Updated metadata for: {}", filename),
-                    )])),
-                    Err(e) => Ok(CallToolResult::error(vec![Content::text(
-                        format!("Error: {}", e),
-                    )])),
+                    Ok(()) => Ok(CallToolResult::success(vec![Content::text(format!(
+                        "Updated metadata for: {}",
+                        filename
+                    ))])),
+                    Err(e) => Ok(CallToolResult::error(vec![Content::text(format!(
+                        "Error: {}",
+                        e
+                    ))])),
                 }
-            },
+            }
             UpdateTarget::CrateDoc => {
                 let crate_name = input.crate_name.ok_or_else(|| {
-                    McpError::invalid_params(
-                        "crate_name required for crate_doc",
-                        None,
-                    )
+                    McpError::invalid_params("crate_name required for crate_doc", None)
                 })?;
 
                 match self.crate_manager.update_crate_doc(
@@ -963,28 +815,23 @@ Targets:
                 ) {
                     Ok(()) => {
                         let location = match &input.module_path {
-                            Some(p) => format!(
-                                "{}::{}",
-                                crate_name,
-                                p.replace('/', "::")
-                            ),
+                            Some(p) => format!("{}::{}", crate_name, p.replace('/', "::")),
                             None => crate_name,
                         };
-                        Ok(CallToolResult::success(vec![Content::text(
-                            format!("Updated documentation for: {}", location),
-                        )]))
-                    },
-                    Err(e) => Ok(CallToolResult::error(vec![Content::text(
-                        format!("Error: {}", e),
-                    )])),
+                        Ok(CallToolResult::success(vec![Content::text(format!(
+                            "Updated documentation for: {}",
+                            location
+                        ))]))
+                    }
+                    Err(e) => Ok(CallToolResult::error(vec![Content::text(format!(
+                        "Error: {}",
+                        e
+                    ))])),
                 }
-            },
+            }
             UpdateTarget::CrateIndex => {
                 let crate_name = input.crate_name.ok_or_else(|| {
-                    McpError::invalid_params(
-                        "crate_name required for crate_index",
-                        None,
-                    )
+                    McpError::invalid_params("crate_name required for crate_index", None)
                 })?;
 
                 match self.crate_manager.update_crate_index(
@@ -994,13 +841,13 @@ Targets:
                     input.add_source_files,
                     input.remove_source_files,
                 ) {
-                    Ok(result) =>
-                        Ok(CallToolResult::success(vec![Content::text(result)])),
-                    Err(e) => Ok(CallToolResult::error(vec![Content::text(
-                        format!("Error: {}", e),
-                    )])),
+                    Ok(result) => Ok(CallToolResult::success(vec![Content::text(result)])),
+                    Err(e) => Ok(CallToolResult::error(vec![Content::text(format!(
+                        "Error: {}",
+                        e
+                    ))])),
                 }
-            },
+            }
         }
     }
 
@@ -1025,10 +872,7 @@ Set confirm=true to actually delete. Without it, shows what would be deleted.")]
         match input.target {
             DeleteTarget::AgentDoc => {
                 let filename = input.filename.ok_or_else(|| {
-                    McpError::invalid_params(
-                        "filename required for agent_doc",
-                        None,
-                    )
+                    McpError::invalid_params("filename required for agent_doc", None)
                 })?;
 
                 if !input.confirm {
@@ -1039,27 +883,22 @@ Set confirm=true to actually delete. Without it, shows what would be deleted.")]
                 }
 
                 match self.manager.delete_document(&filename) {
-                    Ok(path) =>
-                        Ok(CallToolResult::success(vec![Content::text(
-                            format!("Deleted: {}", path),
-                        )])),
-                    Err(e) => Ok(CallToolResult::error(vec![Content::text(
-                        format!("Error: {}", e),
-                    )])),
+                    Ok(path) => Ok(CallToolResult::success(vec![Content::text(format!(
+                        "Deleted: {}",
+                        path
+                    ))])),
+                    Err(e) => Ok(CallToolResult::error(vec![Content::text(format!(
+                        "Error: {}",
+                        e
+                    ))])),
                 }
-            },
+            }
             DeleteTarget::CrateModule => {
                 let crate_name = input.crate_name.ok_or_else(|| {
-                    McpError::invalid_params(
-                        "crate_name required for crate_module",
-                        None,
-                    )
+                    McpError::invalid_params("crate_name required for crate_module", None)
                 })?;
                 let module_path = input.module_path.ok_or_else(|| {
-                    McpError::invalid_params(
-                        "module_path required for crate_module",
-                        None,
-                    )
+                    McpError::invalid_params("module_path required for crate_module", None)
                 })?;
 
                 if !input.confirm {
@@ -1074,18 +913,16 @@ Set confirm=true to actually delete. Without it, shows what would be deleted.")]
                     .crate_manager
                     .delete_module_doc(&crate_name, &module_path)
                 {
-                    Ok(path) =>
-                        Ok(CallToolResult::success(vec![Content::text(
-                            format!(
-                                "Deleted module documentation at: {}",
-                                path
-                            ),
-                        )])),
-                    Err(e) => Ok(CallToolResult::error(vec![Content::text(
-                        format!("Error: {}", e),
-                    )])),
+                    Ok(path) => Ok(CallToolResult::success(vec![Content::text(format!(
+                        "Deleted module documentation at: {}",
+                        path
+                    ))])),
+                    Err(e) => Ok(CallToolResult::error(vec![Content::text(format!(
+                        "Error: {}",
+                        e
+                    ))])),
                 }
-            },
+            }
         }
     }
 }

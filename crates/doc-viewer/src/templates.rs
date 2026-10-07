@@ -1,9 +1,6 @@
 //! Document templates for each documentation type.
 
-use crate::schema::{
-    DocMetadata,
-    DocType,
-};
+use crate::schema::{DocMetadata, DocType};
 
 /// Generate document content from metadata using the appropriate template.
 pub fn generate_document(meta: &DocMetadata) -> String {
@@ -286,20 +283,13 @@ fn generate_analysis(meta: &DocMetadata) -> String {
 }
 
 /// Generate INDEX.md content for a document type.
-pub fn generate_index(
-    doc_type: DocType,
-    entries: &[crate::schema::IndexEntry],
-) -> String {
+pub fn generate_index(doc_type: DocType, entries: &[crate::schema::IndexEntry]) -> String {
     let header = match doc_type {
-        DocType::Guide =>
-            "# Guides Index\n\nHow-to guides and troubleshooting patterns.",
+        DocType::Guide => "# Guides Index\n\nHow-to guides and troubleshooting patterns.",
         DocType::Plan => "# Plans Index\n\nTask plans before implementation.",
-        DocType::Implemented =>
-            "# Implemented Index\n\nCompleted features and enhancements.",
-        DocType::BugReport =>
-            "# Bug Reports Index\n\nKnown issues and problem analyses.",
-        DocType::Analysis =>
-            "# Analysis Index\n\nAlgorithm analysis and comparisons.",
+        DocType::Implemented => "# Implemented Index\n\nCompleted features and enhancements.",
+        DocType::BugReport => "# Bug Reports Index\n\nKnown issues and problem analyses.",
+        DocType::Analysis => "# Analysis Index\n\nAlgorithm analysis and comparisons.",
     };
 
     let mut content = String::from(header);

@@ -1,20 +1,10 @@
 use axum::{
-    body::{
-        Body,
-        to_bytes,
-    },
-    http::{
-        Method,
-        Request,
-        StatusCode,
-    },
+    body::{Body, to_bytes},
+    http::{Method, Request, StatusCode},
 };
 use tower::ServiceExt;
 
-use doc_http::{
-    DocAppState,
-    build_router,
-};
+use doc_http::{DocAppState, build_router};
 
 #[tokio::test]
 async fn healthz_returns_ok() {
@@ -202,10 +192,7 @@ edition = "2024"
     dir
 }
 
-fn write_file(
-    path: &std::path::Path,
-    contents: &str,
-) {
+fn write_file(path: &std::path::Path, contents: &str) {
     if let Some(parent) = path.parent() {
         std::fs::create_dir_all(parent).unwrap();
     }
