@@ -28,7 +28,7 @@
         "./node_modules/@context-engine/viewer-api-frontend/src/index.ts"
       ],
       "@context-engine/types": [
-        "../../log-viewer/frontend/src/types/generated/index.ts"
+        "../../../../log/crates/log-viewer/frontend/src/types/generated/index.ts"
       ]
     }
   },
