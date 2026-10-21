@@ -1,5 +1,11 @@
 **/target/
+**/node_modules/
+**/dist/
 **/.worktrees/
+
+# Generated browser-test output.
+**/playwright-report/
+**/test-results/
 
 # Raw workstation telemetry; curated reports remain trackable.
 **/.feedback/entries/
