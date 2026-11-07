@@ -13,6 +13,24 @@
 
 mod inputs;
 
+#[cfg(test)]
+mod contract_tests {
+    use super::*;
+
+    #[test]
+    fn advertised_documentation_contracts_expose_write_defaults_and_store_scope() {
+        let tools = DocsServer::tool_router().list_all();
+        assert_eq!(tools.len(), 6);
+        for tool in &tools {
+            assert!(tool.description.as_deref().unwrap().contains("no per-call workspace"));
+        }
+        let validate = tools.iter().find(|tool| tool.name == "validate").unwrap();
+        assert!(validate.description.as_deref().unwrap().contains("default false"));
+        let delete = tools.iter().find(|tool| tool.name == "delete").unwrap();
+        assert!(delete.description.as_deref().unwrap().contains("confirm=true"));
+    }
+}
+
 pub use inputs::*;
 
 use rmcp::{
@@ -61,24 +79,7 @@ impl DocsServer {
     // ============================================================
 
     /// List, browse, or read documentation
-    #[tool(description = "List, browse, or read documentation.
-
-Targets:
-- agent_docs: List agent documentation (guides, plans, bug-reports, etc.)
-- crate_docs: Browse crate API documentation modules
-- crates: List all available crates
-
-For agent_docs:
-- Set doc_type to filter by type (guide, plan, etc.)
-- Set filename to read a specific document
-- Set tag/status to filter results
-
-For crate_docs:
-- Set crate_name to browse a specific crate's modules
-- Set module_path to read specific module docs
-
-For crates:
-- No additional parameters needed")]
+    #[tool(description = "List, browse, or read documentation.\n\nTargets:\n- agent_docs: List agent documentation (guides, plans, bug-reports, etc.)\n- crate_docs: Browse crate API documentation modules\n- crates: List all available crates\n\nFor agent_docs:\n- Set doc_type to filter by type (guide, plan, etc.)\n- Set filename to read a specific document\n- Set tag/status to filter results\n\nFor crate_docs:\n- Set crate_name to browse a specific crate's modules\n- Set module_path to read specific module docs\n\nFor crates:\n- No additional parameters needed\n\nUsage contract: Read-only, unpaginated. filename overrides doc_type/tag/status. detail=outline/summary/full, unknown values use summary; crate_docs only full or module_path reads content and requires crate_name. Invalid status is ignored; invalid doc_type fails. Store selection is process-level AGENTS_DIR/CRATES_DIRS at startup; no per-call workspace. Provider failures may be isError or embedded Error: text (notably all-target search); inspect content too. Missing required inputs return invalid_params.")]
     async fn list(
         &self,
         Parameters(input): Parameters<ListInput>,
@@ -251,17 +252,7 @@ For crates:
     // ============================================================
 
     /// Search documentation
-    #[tool(description = "Search documentation content.
-
-Targets:
-- agent_docs: Search agent documentation
-- crate_docs: Search crate API documentation
-- all: Search all documentation
-
-Search options:
-- query: Regex patterns (graph|path), quoted literals (\"hello\"), case-insensitive
-- include_content: Search within file content (not just metadata)
-- lines_before/after: Context lines for content matches")]
+    #[tool(description = "Search documentation content.\n\nTargets:\n- agent_docs: Search agent documentation\n- crate_docs: Search crate API documentation\n- all: Search all documentation\n\nSearch options:\n- query: Regex patterns (graph|path), quoted literals (\"hello\"), case-insensitive\n- include_content: Search within file content (not just metadata)\n- lines_before/after: Context lines for content matches\n\nUsage contract: Read-only, unpaginated case-insensitive regex search; empty query matches all. include_content defaults false (metadata only); lines_before/after default 2. Invalid doc_type is ignored; status filter is not applied. With target=all, a failed half may be embedded as error text without isError. Store selection is process-level AGENTS_DIR/CRATES_DIRS at startup; no per-call workspace. Provider failures may be isError or embedded Error: text (notably all-target search); inspect content too. Missing required inputs return invalid_params.")]
     async fn search(
         &self,
         Parameters(input): Parameters<SearchInput>,
@@ -475,21 +466,7 @@ Search options:
     // ============================================================
 
     /// Validate and maintain documentation
-    #[tool(description = "Validate and maintain documentation.
-
-Targets:
-- agent_docs: Validate agent documentation
-- crate_docs: Validate crate API documentation
-- all: Validate all
-
-Actions:
-- validate: Run validation checks
-- health: Show health dashboard with statistics
-- check_stale: Check for stale documentation (crate_docs)
-- sync: Sync documentation with source files (crate_docs)
-- regenerate_index: Regenerate INDEX.md file (agent_docs)
-- add_frontmatter: Add frontmatter to documents missing it (agent_docs)
-- review_needed: List documents needing review (agent_docs)")]
+    #[tool(description = "Validate and maintain documentation.\n\nTargets:\n- agent_docs: Validate agent documentation\n- crate_docs: Validate crate API documentation\n- all: Validate all\n\nActions:\n- validate: Run validation checks\n- health: Show health dashboard with statistics\n- check_stale: Check for stale documentation (crate_docs)\n- sync: Sync documentation with source files (crate_docs)\n- regenerate_index: Regenerate INDEX.md file (agent_docs)\n- add_frontmatter: Add frontmatter to documents missing it (agent_docs)\n- review_needed: List documents needing review (agent_docs)\n\nUsage contract: Validate and maintain documentation; NOT always read-only. regenerate_index rewrites INDEX.md; add_frontmatter writes unless dry_run=true (default false); sync/update_timestamp writes last_synced. target=all supports validate/health only. Inspect action before calling. Store selection is process-level AGENTS_DIR/CRATES_DIRS at startup; no per-call workspace. Provider failures may be isError or embedded Error: text (notably all-target search); inspect content too. Missing required inputs return invalid_params.")]
     async fn validate(
         &self,
         Parameters(input): Parameters<ValidateInput>,
@@ -671,14 +648,7 @@ Actions:
     // ============================================================
 
     /// Create new documentation
-    #[tool(description = "Create new documentation.
-
-Targets:
-- agent_doc: Create agent documentation file
-  - Required: doc_type, name, title, summary
-  - Optional: tags, status (for plans)
-- crate_module: Create crate module documentation
-  - Required: crate_name, module_path, name, description")]
+    #[tool(description = "Create new documentation.\n\nTargets:\n- agent_doc: Create agent documentation file\n  - Required: doc_type, name, title, summary\n  - Optional: tags, status (for plans)\n- crate_module: Create crate module documentation\n  - Required: crate_name, module_path, name, description\n\nUsage contract: Creates files and regenerates the type INDEX.md. Agent doc names use local YYYYMMDD/type prefix/uppercased name (spaces/hyphens become underscores); existing files fail. Invalid status is dropped. crate_module requires crate_name/module_path/name/description and creates index.yaml only. Store selection is process-level AGENTS_DIR/CRATES_DIRS at startup; no per-call workspace. Provider failures may be isError or embedded Error: text (notably all-target search); inspect content too. Missing required inputs return invalid_params.")]
     async fn create(
         &self,
         Parameters(input): Parameters<CreateInput>,
@@ -762,18 +732,7 @@ Targets:
     // ============================================================
 
     /// Update existing documentation
-    #[tool(description = "Update existing documentation.
-
-Targets:
-- agent_doc: Update agent documentation metadata
-  - Required: filename
-  - Optional: tags, summary, status
-- crate_doc: Update crate documentation content
-  - Required: crate_name
-  - Optional: module_path, index_yaml, readme
-- crate_index: Update crate index.yaml configuration
-  - Required: crate_name
-  - Optional: module_path, source_files, add_source_files, remove_source_files")]
+    #[tool(description = "Update existing documentation.\n\nTargets:\n- agent_doc: Update agent documentation metadata\n  - Required: filename\n  - Optional: tags, summary, status\n- crate_doc: Update crate documentation content\n  - Required: crate_name\n  - Optional: module_path, index_yaml, readme\n- crate_index: Update crate index.yaml configuration\n  - Required: crate_name\n  - Optional: module_path, source_files, add_source_files, remove_source_files\n\nUsage contract: Mutating: supplied tags replace the full list; index_yaml/readme replace complete files. source_files replaces, then add_source_files appends unique paths, then remove_source_files removes. Omitted fields are unchanged. Store selection is process-level AGENTS_DIR/CRATES_DIRS at startup; no per-call workspace. Provider failures may be isError or embedded Error: text (notably all-target search); inspect content too. Missing required inputs return invalid_params.")]
     async fn update(
         &self,
         Parameters(input): Parameters<UpdateInput>,
@@ -856,15 +815,7 @@ Targets:
     // ============================================================
 
     /// Delete documentation
-    #[tool(description = "Delete documentation.
-
-Targets:
-- agent_doc: Delete agent documentation file
-  - Required: filename, confirm=true
-- crate_module: Delete crate module documentation
-  - Required: crate_name, module_path, confirm=true
-
-Set confirm=true to actually delete. Without it, shows what would be deleted.")]
+    #[tool(description = "Delete documentation.\n\nTargets:\n- agent_doc: Delete agent documentation file\n  - Required: filename, confirm=true\n- crate_module: Delete crate module documentation\n  - Required: crate_name, module_path, confirm=true\n\nSet confirm=true to actually delete. Without it, shows what would be deleted.\n\nUsage contract: Delete documentation only when confirm=true; default false previews Would delete. agent_doc deletes a file and regenerates INDEX.md; crate_module recursively removes its module directory including submodules. Not idempotent. Store selection is process-level AGENTS_DIR/CRATES_DIRS at startup; no per-call workspace. Provider failures may be isError or embedded Error: text (notably all-target search); inspect content too. Missing required inputs return invalid_params.")]
     async fn delete(
         &self,
         Parameters(input): Parameters<DeleteInput>,
